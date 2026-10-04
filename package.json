@@ -1,0 +1,27 @@
+{
+  "name": "@local/catia-aero-kit",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Safety-scoped CATIA V5 parametric modelling toolkit for race-car aerodynamic kits.",
+  "icon": "./icon.svg",
+  "exports": {
+    ".": "./index.js",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
+  },
+  "files": [
+    "index.js",
+    "lib/",
+    "locale/",
+    "airfoils/",
+    "icon.svg",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

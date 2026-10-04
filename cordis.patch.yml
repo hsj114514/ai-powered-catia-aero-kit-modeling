@@ -1,0 +1,11 @@
+- insert:
+    - id: catia-aero
+      name: '@local/catia-aero-kit'
+      config:
+        enabled: true
+        projectRoot: ''
+        maxLevel: 2
+        allowOverwrite: false
+        allowDeleteOwnFeature: true
+        scriptTimeoutMs: 900000
+        persona: true
