@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 /**
  * Offline checks for the pure-JavaScript half of the plugin: airfoil geometry, section
  * placement, wing/flap layout, ledger-bound element fragments and the path fence.
@@ -8,7 +9,6 @@
  * Run from the package directory:  node test/smoke.mjs
  */
 import { writeFileSync } from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -44,7 +44,7 @@ function check(label, condition, detail = '') {
 
 // ---- NACA 4-digit generation ----
 const loop = naca4Loop('2412', { count: 40 });
-check('naca loop point count', loop.length === 78, `got ${loop.length}`);
+check('naca loop point count', loop.length === 79, `got ${loop.length}`);
 const xs = loop.map(([x]) => x);
 const ys = loop.map(([, y]) => y);
 // A finite trailing-edge thickness tips the last ordinate slightly past x = 1, so these
@@ -77,7 +77,7 @@ check('ledger surface order is converted to selig', Math.min(...ledgerParsed.poi
   && ledgerParsed.points[0][0] === 1, JSON.stringify(ledgerParsed.points));
 const unit = normalizeChord([[100, 5], [300, 40], [500, 3]]);
 check('normalizeChord rescales to unit chord', near(unit[0][0], 0) && near(unit[2][0], 1), JSON.stringify(unit));
-const resampled = resampleLoop([[1, 0], [0.5, 0.06], [0, 0], [0.5, -0.05]], 12);
+const resampled = resampleLoop([[1, 0], [0.5, 0.06], [0, 0], [0.5, -0.05], [1, 0]], 12);
 check('resampleLoop keeps a closed ordering', resampled.length === 22 && near(resampled[0][0], 1, 0.2), `n=${resampled.length} first=${resampled[0][0].toFixed(3)}`);
 
 // ---- section placement ----
@@ -136,7 +136,7 @@ check('wing bounds derive from the ledger', wingBounds !== null && near(wingBoun
 check('flap bounds derive from the ledger', elementBounds(flap, elementMap) !== null, '');
 
 // ---- script assembly ----
-const script = assembleScript({ prelude: 'PRELUDE', body: 'X', reportPath: path.join(os.tmpdir(), 'r.tsv'), op: 'test', title: 'T' });
+const script = assembleScript({ prelude: 'PRELUDE', body: 'X', reportPath: path.join(process.cwd(), '.test-output', 'r.tsv'), op: 'test', title: 'T' });
 check('assembled script carries the epilogue', script.includes('WScript.Quit 0') && script.includes('RESULT'), '');
 check('no prelude placeholder survives', !script.includes('@@'), '');
 

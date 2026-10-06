@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 /**
  * Parses and runs one generated script with `cscript.exe` to prove the shared preamble is legal
  * VBScript and that the report channel works.
@@ -62,10 +63,17 @@ const run = spawnSync(cscript, ['//nologo', '//B', scriptPath], { stdio: 'ignore
 check('cscript exited cleanly', run.status === 0, `status=${run.status} error=${run.error?.message ?? 'none'}`);
 check('report file was produced', existsSync(report), report);
 
+// r6 writes generated scripts and their report as UTF-16LE so non-ASCII names survive; sniff the BOM.
+function readReport(file) {
+  const bytes = readFileSync(file);
+  const isUtf16 = bytes.length >= 2 && ((bytes[0] === 0xff && bytes[1] === 0xfe) || (bytes[0] === 0xfe && bytes[1] === 0xff));
+  return bytes.toString(isUtf16 ? 'utf16le' : 'utf8').replace(/^\uFEFF/, '');
+}
+
 const values = {};
 let result = null;
 if (existsSync(report)) {
-  for (const line of readFileSync(report, 'utf8').split(/\r?\n/)) {
+  for (const line of readReport(report).split(/\r?\n/)) {
     if (line.trim() === '') continue;
     const tab = line.indexOf('\t');
     const key = tab === -1 ? line : line.slice(0, tab);
@@ -78,7 +86,7 @@ check('script reported success', result === 'ok', `RESULT=${result}`);
 check('integer value round-tripped', values.probeInt === '42', `got ${values.probeInt}`);
 check('text value round-tripped', values.probeText === 'hello world', `got ${values.probeText}`);
 check('float value round-tripped', values.probeFloat === '1.5', `got ${values.probeFloat}`);
-check('report is tab separated', readFileSync(report, 'utf8').includes('probeInt\t42'));
+check('report is tab separated', readReport(report).includes('probeInt\t42'));
 
 lines.push('');
 lines.push(failures === 0 ? 'ALL PRELUDE CHECKS PASSED' : `${failures} PRELUDE CHECK(S) FAILED`);

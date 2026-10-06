@@ -1,123 +1,181 @@
-# @local/catia-aero-kit
+# AI-Powered CATIA Aero Kit Modeling
 
-面向**赛车空气动力学套件**的受控 CATIA V5 参数化建模插件。给 DSH Agent 一套固定白名单的气动领域建模工具，用它把「弦长 300、展长 1200、襟翼偏转 25°、gap 5mm」这类参数直接变成 CATIA 里可编辑、可复现、可回滚的参数化曲面。
+[English](README.en.md) · **v1.1 / 1.1.0 · r6** · GPL-3.0-only
 
-- 完整行为规范：[CHARTER.md](CHARTER.md)
-- 工具清单：见 CHARTER 附录 A
-- CATIA 自动化能力与限制：见 CHARTER 附录 B
+用于赛车空气动力学套件的 CATIA V5 参数化建模工具。v1.1 增加了**读取部件位置**和**装配操作**，帮助把翼面设计放入整车布局中。本包是 GitHub 源码交付版，保留 patched 包的修复。仓库：[hsj114514/ai-powered-catia-aero-kit-modeling](https://github.com/hsj114514/ai-powered-catia-aero-kit-modeling)。
 
----
+## v1.1 能做什么
 
-## 1. 运行要求
+- 根据 NACA 四位翼型或坐标构建翼型、翼面、多级襟翼、端板、扩散器，以及点、线、平面和导引曲线。
+- 以项目账本管理参数，重建编号版本，查看历史、回滚参数并导出几何。
+- 离线读取 STEP 装配层级、实例和位置，导出 CSV；按需计算带质量标记的近似包络。
+- 从 CATIA 当前产品树读取部件在装配坐标系中的绝对位置，组合嵌套装配的局部变换。
+- 在 CATProduct 中插入、移除或替换实例；检查刚体放置矩阵，支持保存为新的总装文件。
+- 根据用户提供的车轴、轮胎、地面及区域基准，初筛部分几何规则。
 
-- Windows + 已安装并可通过 COM 自动化访问的 CATIA V5
-- CATIA 的 COM 自动化接口可注册（注册表存在 `CATIA.Application`）
-- DSH 任一 profile
+**几何范围：**不评价安装刚度、约 200 N 加载变形、结构强度或气动性能。端板和扩散器生成曲面，不自动保证封闭实体。规则初筛不能代替最终模型测量、官方规则与车检。
 
-插件本身**没有任何 npm 依赖**，只用 Node 内置模块；不需要构建步骤。
+## 运行要求与兼容性
 
-## 2. 安装
-
-在 DSH 会话中安装（`target` 指向本目录的绝对路径）：
-
-```
-plugin_manager  action: install_bundle
-                target: <解压后的插件目录绝对路径>
-```
-
-安装后插件按 `cordis.patch.yml` 中的 `config` 激活。可用
-`cordis_inspect_query(platform: host, provider: Tool, method: listTools)` 确认 `catia_*` 工具已出现。
-
-## 3. 配置
-
-`cordis.patch.yml` 的 `config` 字段（全部可选，均有安全默认值）：
-
-| 键 | 默认 | 含义 |
+| 使用方式 | 需要 | 说明 |
 |---|---|---|
-| `enabled` | `true` | 关闭时插件不注册任何工具或提示段落 |
-| `projectRoot` | `<工作目录>/catia-projects` | 所有项目、版本文件、导出与审计日志的根目录；工具无法越出此目录 |
-| `maxLevel` | `2` | 允许执行的最高安全等级；超过即被工具拒绝 |
-| `allowOverwrite` | `false` | **保持 false**：目标文件已存在时自动改用 `_AgentNN` 后缀 |
-| `allowDeleteOwnFeature` | `true` | 是否允许删除本插件自己刚创建的特征（失败回滚用） |
-| `scriptTimeoutMs` | `900000` | 单次 CATIA 自动化脚本的硬超时（毫秒） |
-| `persona` | `true` | 是否注册安全宪章系统提示段落 |
+| 离线几何/STEP 模块与规则筛查 | Node.js 18+ | 仅使用 Node 内置模块，无需 npm 安装或构建 |
+| CATIA 实时建模、位置读取及装配 | Windows、CATIA V5、可用 COM 自动化与相应许可 | 需要目标机器验证接口和许可；包内不包含 CATIA |
+| 作为 Agent 插件 | 提供 tools 服务的 DSH/Cordis 宿主 | 内部包名保留 `@local/catia-aero-kit`，避免破坏加载配置 |
+| 其他 Agent | 自行接入模块或适配工具定义 | 本包没有通用 MCP 服务入口，不能直接当成任意 Agent 的即装即用插件 |
 
-## 4. 快速开始
+`package.json` 的 `private: true` 防止误发 npm，不影响 GitHub 下载或 DSH 本地包加载。
 
-```
-catia_env                  project: "FW_AERO", checkWrite: true
-catia_multi_element_wing   project: "FW_AERO", id: "rear_wing",
-                           naca: "2412", span: 1200, zStart: -600,
-                           chordRoot: 300, chordTip: 220, aoaRoot: 8, twist: -2,
-                           sweepDeg: 5, dihedralDeg: 2, stations: 5,
-                           flaps: [{ chordRatio: 0.3, deflectionDeg: 25, gap: 5, overlap: 3 }]
-catia_check_rules          project: "FW_AERO",
-                           rules: { maxSpan: 1600, maxHeight: 900, minGroundClearance: 50 }
-catia_export               project: "FW_AERO", format: "step"
+## 新机器快速开始
+
+1. 下载并完整解压，找到同时包含 `index.js`、`package.json` 和 `cordis.patch.yml` 的目录。
+2. 在该目录运行只读环境诊断和文件完整性检查：
+
+```powershell
+node scripts/doctor.mjs
+node scripts/checksums.mjs
+# Windows 可额外检查脚本宿主与 CATIA COM 注册：
+powershell -NoProfile -File scripts/doctor.ps1
 ```
 
-建模坐标约定：**毫米**，**+X 向后（前缘在 x=0）、+Y 向上、+Z 向外**；攻角正值为前缘抬高。
+诊断不会安装软件、注册 COM 或启动 CATIA。COM 注册存在不代表实际建模可用。SHA256 清单用于检查交付文件是否改变，不提供发布者身份验证。
 
-## 5. 工作方式（为什么这样设计）
+若 Windows 提示禁止运行脚本，可在检查源码后为上述命令加入 `-ExecutionPolicy Bypass`。该参数仅作用于本次 PowerShell 进程，不修改系统执行策略。Node 诊断与完整性检查无需此参数。
 
-**所有设计变更 = 改账本 + 重建成新的编号版本。** 插件从不原地修改几何，也从不覆盖已存在的文件。
+3. 在目标 DSH 会话中，通过宿主的包管理工具导入目录：
 
-```
-<projectRoot>/<项目>/
-  ledger.json                 设计账本：元素参数、版本快照、约束
-  audit.jsonl                 审计流水：每次工具调用的级别/参数/改前改后/结果
-  FW_AERO_GEN_001.CATPart     版本 1（永久保留）
-  FW_AERO_GEN_002.CATPart     版本 2（永久保留）
-  exports/                    导出的 STEP/STL，永不覆盖
-  .dsh-catia/scripts/         每次实际执行的自动化脚本
-  .dsh-catia/reports/         每次执行的逐步报告
+```text
+plugin_manager action: install_bundle, target: <解压后的包目录绝对路径>
 ```
 
-由此得到几个直接好处：
+安装命令由宿主提供；不同宿主版本应以其帮助为准。导入后确认 `catia_*` 和 `step_assembly_components` 已注册。纯离线模块无需安装插件。
 
-- **可复现**：账本就是模型定义，重放账本必然重建出同一模型。
-- **可回滚**：`catia_rollback` 恢复旧版参数重建成新版本，旧文件一个都不删。
-- **可审计**：`catia_audit` 给出时间、工具、等级、参数、改前改后、错误、回滚情况。
-- **事务性**：某个元素的构建失败时，本次脚本创建的特征会在同一脚本内回滚，文档停留在上一个有效状态；账本也会回滚，不记录这次失败的改动。
-- **不破坏原始数据**：用户的母版文件只被读取，从不被写入。
+4. 在 Windows 启动 CATIA，在独立项目与工作副本上开始设计。先运行 `catia_env project: "AERO_DEMO"`；只有准备执行写盘探测时才加 `checkWrite: true`，该选项会创建并删除探测文件。
 
-**为什么不做原地编辑**：在已有版本文件上删改特征，一旦重建失败就会毁掉最后一个有效状态。新版本重建虽然文件多一点，但任何一步失败都不会损失已有成果——这符合宪章里「安全失败优于错误成功」。
+### 自动发现路径
 
-## 6. 迁移 / 复制到别的机器
+随包 `projectRoot: ''`，运行时按顺序选择当前主机中非空、绝对的目录：
 
-本插件是自包含的：整个目录复制过去即可。
+`LOCALAPPDATA → XDG_DATA_HOME → HOME/.local/share → TEMP → 系统临时目录`
 
-1. 复制整个 `catia-aero-kit/` 目录到目标机器（保持目录结构：`index.js`、`lib/`、`cordis.patch.yml`、`CHARTER.md`、`locale/`、`icon.svg`）。
-2. （可选）在 `cordis.patch.yml` 的 `projectRoot` 中填写目标机器上允许写入的工程目录；留空时默认使用 DSH 当前工作目录下的 `catia-projects/`。
-3. 在目标机器的 DSH 会话里执行 `plugin_manager action: install_bundle, target: <复制后的绝对路径>`。
-4. 用 `catia_env` + `checkWrite: true` 确认该机器上的 CATIA 允许写盘，然后跑一次上面的快速开始流程。
+随后追加 `catia-aero-kit/projects`。不使用开发机路径或宿主工作目录。数据目录不能写入时，可在 `cordis.patch.yml` 显式指定本机可写的绝对路径。回退到临时目录时应定期备份账本和几何文件。
 
-无需 npm 安装、无需编译；目标机器只需有 CATIA V5 和 DSH。CATIA 安装位置由插件按当前主机的环境变量、常见安装根目录和 Windows 注册信息自动探测，不需要在配置中填写开发机路径。
+Node 根据 PATH 发现，Windows 诊断还探测当前机器常见的用户/系统安装位置；脚本宿主根据 SystemRoot 定位。软件缺失时给出诊断，不会自动下载安装。
 
-## 7. 已知限制（实测，非猜测）
+### 配置
 
-- **需要 CATIA 允许写盘。** 如果 CATIA 实例所在会话不允许写文件，`SaveAs`/`ExportData` 可能失败。此时 `catia_env` 的 `checkWrite` 会如实返回 `canWriteFiles: no`，建模类工具会报告保存失败，而不会谎报成功。请在目标 CATIA/DSH 会话中确认文件写入权限。
-- **翼型默认带有限厚度的后缘。** 数学上零厚度的尖后缘会让 CATIA 的多截面放样必然 Update 失败（实测，见 CHARTER 附录 B）。默认使用有限后缘（0.21% 弦长）既符合真实坐标文件的定义，也保证可放样；`naca4Loop` 仍保留 `closedTrailingEdge` 选项供对照实验。
-- **`gap` 是「父级后缘 → 襟翼前缘」的垂直距离，不等于最小面间距。** 样例中 `gap: 5 mm` + `overlap: 3 mm` 的实测最小面间距为 2.95 mm（25° 偏转）/ 3.16 mm（30° 偏转），因为襟翼前缘被 overlap 推入主翼下方后，最近点出现在襟翼上表面与主翼下表面之间。若设计意图是「最小通道 5 mm」，请用 `catia_measure` / `catia_check_clearance` 复核后调整 `gap`。
-- **修改插件自身的 JS 后需要重启 DSH，或同时更换包名与目录路径。** DSH 的加载器按包标识缓存插件的入口模块，Node 又按真实文件路径缓存 `lib/*`；只改其中一项会让宿主继续运行旧代码（`plugin_manager` 的启用/禁用与重装都不足以刷新）。这是 DSH 的模块代机制，不是本插件的缺陷。改完 JS 后：重启 DSH 最省事；若不想重启，则同时改 `package.json` 的 `name`、`cordis.patch.yml` 的 `name`，并把目录换成一个新路径后再 `install_bundle`。
-- **STL 需要闭合实体。** 本插件的机翼/襟翼是曲面，STL 导出可能合理地失败；STEP 不受影响。
-- **功能受 CATIA 版本和自动化接口影响。** 插件只调用实现中明确支持的自动化接口；目标环境差异可能导致个别操作不可用。端板/扩散器通过多截面曲面放样构建。
-- **翼型坐标不内置。** NACA 4 位翼型由解析公式生成；S1223 等真实翼型必须由用户提供坐标文件或坐标数组（可通过 `catia_airfoil` 的 `coordinates` 传入），以避免伪造工程数据。
-- **串行执行。** 所有工具都标记为非并发安全，Harness 会串行调用；同一时刻只有一个自动化脚本驱动 CATIA。
-- **一次设计迭代一个文件。** 版本文件会随迭代增多（这是刻意的版本隔离）；不需要的旧版本由用户自行归档删除。
+| 配置 | 运行时默认值 | 随包值/用途 |
+|---|---|---|
+| enabled | true | 注册工具 |
+| projectRoot | 自动发现 | 空字符串，自动定位当前用户目录 |
+| maxLevel | 2 | 随包为 3，保留装配移除/替换；只用建模和插入可改为 2 |
+| allowOverwrite | false | 保留 false，避免覆盖已有输出 |
+| allowDeleteOwnFeature | true | 失败时清理本次创建的特征 |
+| scriptTimeoutMs | 900000 | 单次自动化超时，毫秒 |
+| persona | true | 宿主支持时注册操作规范 |
 
-## 8. 安全边界
+装配移除/替换为 Level 3：除配置上限外，还要求 `confirm` 精确重复实例名并填写 `reason`。这些字段用于防误操作，不能代替操作人的授权。
 
-插件在代码层面（不只是提示里）强制执行：
+## 建模示例
 
-- 超过 `maxLevel` 的操作直接拒绝并记入审计。
-- 所有项目路径经 `safeName` + 目录围栏校验，模型无法让插件写到项目目录之外（例如用 `..\..` 或绝对路径）。
-- 目标文件已存在时自动改名，绝不覆盖。
-- 每次调用的输入参数、级别、结果、错误都写入 `audit.jsonl`。
-- 运行时会再次校验工具输入；参数 schema 主要用于描述接口，不能单独视作运行时安全边界。坐标、导向线点和端板轮廓分别限制数量，超限请求会拒绝，不会静默截断。
-- 插件不含第三方运行依赖、安装生命周期脚本或网络访问代码。生成的 VBScript 通过 CATIA COM 建模，并使用文件系统对象写入插件自己的报告文件。
-- 调用建模工具会允许 AI Agent 在当前用户权限下驱动已运行的 CATIA，并在配置的项目目录中创建新版本文件；CATIA 的文件提示会由自动化关闭。请只对可信任的 Agent 和工程目录启用本插件。
-- 输入校验或执行前错误会返回 `BLOCKED` 并尝试写入审计日志；项目名本身无效时，错误会记入默认 `_scratch` 项目的日志。
+以下是 Agent 工具参数示例，不是终端命令：
 
-模型侧的规则（分级、白名单、事实边界、人工确认节点）见 [CHARTER.md](CHARTER.md)。
+```text
+catia_multi_element_wing project: "AERO_DEMO", id: "rear_wing",
+    naca: "2412", span: 1200, zStart: -600,
+    chordRoot: 300, chordTip: 220, aoaRoot: 8, twist: -2,
+    sweepDeg: 5, dihedralDeg: 2, stations: 5,
+    flaps: [{ chordRatio: 0.3, deflectionDeg: 25, gap: 5, overlap: 3 }]
 
+catia_check_rules project: "AERO_DEMO",
+    rules: { groundY: 0, maxSpan: 1600, maxHeight: 900, minGroundClearance: 50 }
+
+catia_export project: "AERO_DEMO", format: "step"
+```
+
+示例尺寸是演示参数，不代表赛事规定。建模单位为毫米，+X 向后、+Y 向上、+Z 向外；正攻角抬高前缘。多级襟翼逐级串联：后一级的弦长比、偏转、gap 和 overlap 相对其父级。旧账本保留原 parentId。
+
+## 读取部件位置
+
+```text
+step_assembly_components project: "AERO_DEMO",
+    file: <整车.step绝对路径>, includeBounds: false, exportCsv: true
+
+catia_open_document project: "AERO_DEMO", path: <总装.CATProduct绝对路径>
+catia_assembly_positions project: "AERO_DEMO", maxDepth: 12, maxComponents: 500
+```
+
+STEP 不需要启动 CATIA；CATIA 位置读取使用当前活动产品文档。查看位置状态、未解析实例和截断标记；工具最多显示 80 个结构化预览，STEP 可用 CSV 查看保留的完整表。
+
+读取输出统一为**行主序 3×4**：
+
+```text
+[r00,r01,r02,tx, r10,r11,r12,ty, r20,r21,r22,tz]
+```
+
+平移位于索引 3、7、11。STEP 数值使用源文件单位，尚未自动换算；建模、CATIA placement 和以 mm 命名的包络阈值按毫米使用。必须先核对导出单位，并把整车坐标、地面和车轴基准变换到同一坐标系。
+
+`includeBounds: true` 返回近似包络；其 `boundsStatus`、`boundsWarnings` 和 `boundsUsableForCompliance: false` 必须保留。不完整、有理或不支持几何、过滤及资源上限均可能降低可信度。分配预算限制部分内部数组，不等于进程总内存限制。位置只是部件原点与方向，不能证明完整外形无干涉。
+
+## 装配操作
+
+```text
+catia_assembly_insert project: "AERO_DEMO",
+    product: <总装.CATProduct绝对路径>, component: <翼面.CATPart绝对路径>,
+    instanceName: "Wing.1",
+    placement: [1,0,0, 0,1,0, 0,0,1, 100,200,300],
+    saveAs: <新的总装.CATProduct绝对路径>
+
+catia_assembly_replace project: "AERO_DEMO",
+    product: <总装.CATProduct绝对路径>,
+    componentPath: ["RearAssembly.1","Wing.1"], component: "Wing.1",
+    withFile: <新版翼面.CATPart绝对路径>, confirm: "Wing.1",
+    reason: "替换已经人工确认的新版翼面",
+    saveAs: <另一个新的总装.CATProduct绝对路径>
+```
+
+插入的 `placement` 使用 CATIA 原始轴格式：
+
+```text
+[X轴x,X轴y,X轴z, Y轴x,Y轴y,Y轴z, Z轴x,Z轴y,Z轴z, 原点x,原点y,原点z]
+```
+
+它与读取输出的行主序矩阵不同，不能直接混用。示例为无旋转、平移 [100,200,300] mm。矩阵必须是正交、右手刚体变换。嵌套 componentPath 逐级精确匹配唯一实例。替换保留旧件局部放置，但新旧部件的局部原点、约束和发布引用仍需检查。
+
+- 不传 saveAs 时只修改 CATIA 会话；保存失败时会话也可能已经改变，应检查后再重试。
+- saveAs 必须指向不存在的新文件。装配输入和输出可在项目目录之外，应仅操作已授权的工作文件。
+- CATProduct 仍引用原部件文件。本工具不自动收集引用；跨机器交付装配须在 CATIA Save Management 中收集外部引用。
+
+## 几何与规则筛查
+
+```powershell
+node scripts/geometry-check.mjs <ledger.json路径> <rules.json路径>
+```
+
+退出码：0 表示所选精确几何通过给定检查；2 表示冲突、采样不确定或缺失数据；1 表示输入错误。只适用于工具实现的几何范围。
+
+点/直线可按实际区域裁切；样条和放样筛查输入点，不能保证最终曲面完全在区域内，此时返回 PARTIAL_SUCCESS、screeningOnly 和 uncertainElements。T9.4/T9.5/T9.6 的部分检查依赖调用者提供正确基准；本包没有完整赛事规则数据库。最终曲面、间隙和区域边界必须在 CATIA 中测量确认。
+
+## 开发、交付与文档
+
+```powershell
+node scripts/verify.mjs
+powershell -NoProfile -File scripts/package.ps1 -OutputFile <新的zip绝对路径>
+```
+
+离线检查不会启动 CATIA。打包脚本只收集源码、文档、许可证、检查脚本和 GitHub 工作流，生成 SHA256 清单；不携带本机项目、CAD 文件或生成报告。Windows/Linux 的 GitHub 离线检查已配置，实际执行结果需发布后查看 Actions。
+
+本次本地准备检查了源码语法与交付完整性，未运行回归测试或实时 CATIA 验证；不能据此确认全部功能已通过。
+
+- [v1.1 更新记录](CHANGELOG.md)
+- [v1.1 更新说明](RELEASE_NOTES.md)
+- [本次移植交付说明](PORTABILITY.md)
+- [贡献指南](CONTRIBUTING.md)、[安全问题](SECURITY.md)
+- [工具与操作规范](CHARTER.md)
+- 历史审查：[REVIEW_r6.md](REVIEW_r6.md)、[REVIEW_v1.1.0.md](REVIEW_v1.1.0.md)、[CODE_REVIEW.md](CODE_REVIEW.md)、[实车记录](VERIFICATION-real-vehicle.md)
+
+历史记录描述原开发时的环境和数据，不是本候选版的实时 CATIA 或实车验证结果。
+
+## 许可证
+
+源码按 **GNU GPL v3 only（GPL-3.0-only）** 发布，全文见 [LICENSE](LICENSE)。CATIA、DSH/Cordis、Node.js 不包含在包内，分别遵循各自的许可。公开源码不会提供 CATIA 软件或许可。

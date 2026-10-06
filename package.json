@@ -1,9 +1,9 @@
 {
   "name": "@local/catia-aero-kit",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
-  "description": "Safety-scoped CATIA V5 parametric modelling toolkit for race-car aerodynamic kits.",
+  "description": "CATIA V5 aerodynamic kit modelling with component placement reading, guarded assembly operations and geometric rule screening.",
   "icon": "./icon.svg",
   "exports": {
     ".": "./index.js",
@@ -14,14 +14,41 @@
     "index.js",
     "lib/",
     "locale/",
-    "airfoils/",
     "icon.svg",
     "cordis.patch.yml",
-    "README.md"
+    ".gitignore",
+    ".gitattributes",
+    ".github/",
+    "LICENSE",
+    "README.md",
+    "README.en.md",
+    "CHANGELOG.md",
+    "RELEASE_NOTES.md",
+    "PORTABILITY.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "CHARTER.md",
+    "REVIEW_v1.1.0.md",
+    "VERIFICATION-real-vehicle.md",
+    "CODE_REVIEW.md",
+    "scripts/",
+    "REVIEW_r6.md",
+    "test/*.mjs",
+    "checksums.sha256"
   ],
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
     }
+  },
+  "catiaAeroRevision": "r6",
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "GPL-3.0-only",
+  "scripts": {
+    "test": "node scripts/verify.mjs",
+    "doctor": "node scripts/doctor.mjs",
+    "check:files": "node scripts/checksums.mjs"
   }
 }

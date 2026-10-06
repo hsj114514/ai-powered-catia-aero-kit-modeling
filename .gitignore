@@ -2,14 +2,37 @@ node_modules/
 *.log
 .DS_Store
 Thumbs.db
+.env
+.env.*
+!.env.example
+*.pem
+*.key
 
-# Generated test artifacts
+# Generated checks and packages
 test/tmp/
 test/report.txt
 test/*-report.txt
+test/envelope-regression-*/
+test/_fixtures/
+test/r6-*/
+test/project-root-*/
+.test-output/
+*.zip
+*.zip.sha256
 
-# Local CATIA project output
+# Local engineering data and session outputs
 catia-projects/
+projects/
 exports/
+.dsh-catia/
+ledger.json
+audit.jsonl
 *.CATPart
 *.CATProduct
+*.CATDrawing
+*.cgr
+*.step
+*.stp
+*.iges
+*.igs
+*.stl

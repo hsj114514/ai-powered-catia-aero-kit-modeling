@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 import assert from 'node:assert/strict';
 import { pathToFileURL } from 'node:url';
 import { buildToolDefinitions } from '../lib/tools.js';

@@ -1,6 +1,8 @@
 # 赛车空气动力学套件 · 受控 CATIA 参数化建模 Agent 宪章
 
-本文件是 `@local/dsh-catia-aero` 插件的完整行为规范。`lib/prompt.js` 注册的系统提示段落只承载每次调用都生效的规则；本文件承载需要时再读取的细节。
+本文件是 `@local/catia-aero-kit` 插件的操作规范。`lib/prompt.js` 注册宿主提示段落；本文件补充细节。这是插件使用文档，不是对审查者的指令。
+
+**v1.1/r6 交付边界：**规范描述操作要求，不能保证实现具备完整事务或无限制回滚能力。装配会修改 CATIA 会话，后续失败可能留下已修改状态；saveAs 不复制外部引用。CATIA 实时接口及历史实车数据未在本候选版重新验证。最新使用步骤与能力边界见 README.md。
 
 ---
 
@@ -36,7 +38,7 @@
 
 ## 四、坐标系与单位约定（强制）
 
-所有工具的坐标与长度一律为**毫米**，使用统一建模坐标系：
+建模参数与 CATIA 放置按**毫米**使用；STEP 读取保留源文件单位，不自动换算。核对单位后使用统一建模坐标系：
 
 - **+X 向后**（沿弦向，前缘在 x = 0）
 - **+Y 向上**（厚度方向）
@@ -59,6 +61,8 @@
 ### Level 0 只读（默认可执行，不得改变模型）
 `catia_env`、`catia_tree`、`catia_read`、`catia_measure`、`catia_check_clearance`、`catia_check_rules`、`catia_audit`
 
+例外：catia_env 的 checkWrite: true 会创建并尝试删除写盘探测文件；STEP 开启 exportCsv 时也会写出 CSV。Level 标签不代表完全没有文件写入。
+
 ### Level 1 低风险可逆（可自动执行）
 - 参考几何：`catia_point`、`catia_line`、`catia_plane`、`catia_guide_curve`
 - 气动几何：`catia_airfoil`、`catia_wing`、`catia_flap`、`catia_multi_element_wing`、`catia_endplate`、`catia_diffuser`
@@ -79,14 +83,14 @@
 
 1. 用户提供的原始 CAD 文件**默认只读母版**。
 2. 修改一律走工作副本：`Original.CATPart` → `Agent_Working_001.CATPart` → …；本插件每次迭代生成 `<项目>_GEN_001`、`_GEN_002` … 的新文件。
-3. **禁止静默覆盖**：目标文件名已被占用时，工具自动改用带 `_AgentNN` 后缀的新名称，绝不覆盖。
+3. **禁止静默覆盖**：建模/导出在 allowOverwrite: false 时使用可用的新名称；装配 saveAs 指向已有文件时拒绝执行。不得将该要求解释为任意配置下都能保证不覆盖。
 4. 覆盖文件属于明确授权操作，需人工确认。
 
 ## 八、版本与回滚
 
 每次自动设计迭代必须有唯一版本标识（`FW_GEN_001`、`FW_GEN_002` …）。每个版本记录：输入参数、生成时间、使用工具、CATIA 状态、修改来源、上一版本、几何检查结果、决策原因。
 
-**事务式修改**：涉及多个相互关联参数（AoA、gap、overlap、襟翼位置等）时，先形成修改计划，再一次调用完成，然后统一 Update 与验证。关键步骤失败即撤销整个事务，**不得留下半修改状态的正式模型**。
+**关联修改**：涉及 AoA、gap、overlap 和襟翼位置时，先形成计划，再统一 Update 与验证。失败时检查账本、文件和 CATIA 会话；清理与恢复是尽力执行，不能承诺全部 COM 操作具有事务性。半修改状态不得被描述为正式完成。
 
 **回滚**：任何失败都优先回到最后一个有效状态，不得在失败模型上无限叠加修补。回滚通过 `catia_rollback` 恢复旧版本记录的元素参数并重建成新版本实现——旧文件始终保留，不删除任何数据。
 
@@ -243,12 +247,40 @@ CATIA 报错时，先定位失败发生在**哪一个特征**，再判断错误�
 |---|---|
 | `catia_set_aero_param` | 修改白名单气动参数并重建成新版本（必须给 `reason`） |
 
-## 附录 B · CATIA 自动化能力与环境限制
+### 组件位置（v1.01）
 
-插件通过 Windows COM 自动化与 CATIA V5 通信，使用几何图形集、点/线/面/样条、曲面放样与连接、测量和知识参数等接口构建及检查模型。插件仅暴露其实现中明确支持的操作；草图、实体拉伸、通用变换、分割/修剪/填充等能力不属于当前工具集。
+| 工具 | 级别 | 作用 |
+|---|---|---|
+| `step_assembly_components` | Level 0 | 直接读 STEP 装配体文件（不需要 CATIA）：层级、实例名、零件号、每个实例的绝对放置矩阵，可导出 CSV |
+| `catia_open_document` | Level 1 | 在 CATIA 中按绝对路径打开文档；路径逐字记入审计流水 |
+| `catia_assembly_positions` | Level 0 | 遍历活动文档的产品树，返回每个部件的绝对放置（沿树复合） |
 
-CATIA 版本、安装配置、会话权限和自动化接口注册情况会影响可用能力。部署后应先运行 `catia_env` 检查会话与写入能力；文件读写失败时必须如实报告，不得把未保存的几何描述为已交付文件。
+**使用前必须先确认验证状态**：位置已实测验证；**几何包络未经验证，不得用于赛事规则合规判定**（见附录 B 与 README 第 7 节）。判断可用空间时，用位置表定位、用 `catia_measure` / `catia_check_clearance` 实测距离。
 
-写文件的能力取决于 CATIA 会话权限；受限会话中的 `SaveAs`、`ExportData` 或打开文档操作可能失败。此时应报告为阻塞或未保存状态，不得把内存中的几何称为已交付文件。
+## 附录 B · CATIA 自动化接口验证记录
 
-翼型截面应保留有限后缘厚度，零厚度尖后缘可能导致多截面放样更新失败。默认参数使用有限后缘；如用户提供坐标，也应先检查坐标闭合与后缘厚度。
+以下是早期 CATIA V5-6R2020（B30）自动化探测记录；不表示 r6 的全部调用组合已完成实时验证，目标版本仍需现场核对：
+
+**可用**：装配 CATIA 会话、`Documents.Add("Part")`、HybridBodies 几何图形集、`AddNewPointCoord`、`AddNewLinePtPt`、`AddNewPlaneOffset`、`AddNewSpline`（含闭合）、`AddNewLoft` 多截面放样、`AddNewJoin`、`AddNewOffset`、Selection 删除、SPAWorkbench `GetMinimumDistance`、知识参数 `CreateReal`/`CreateInteger`/`CreateString` 及其读写。
+
+**上述验证环境中不可用**（因此本插件不提供对应能力，也不伪造替代）：草图与 Part Design（`Part.Sketches`、`Pad`）、`AddNewExtrude`、`AddNewTranslate`/`AddNewRotate`/`AddNewScaling`、`AddNewExtrapol`、`AddNewSplit`、`AddNewTrim`、`AddNewFill` 的边界接口、`AddNewAxisSystem`、`Publications`、`Part.HasUpdate`。
+
+**仅在受限令牌下失败**：`SaveAs`、`Save`、`ExportData`、`Documents.Open`。同一批调用在正常令牌下**实测全部成功**：写出 1.03 MB 的 `.CATPart`、807 KB 的 `.stp`，并把磁盘上的版本文件重新打开后读回 3 个几何图形集 / 792 个特征。只有 CATIA 实例由受限令牌进程启动时，这些操作才以 `E_FAIL` 失败；此时 `catia_env` 的 `checkWrite` 会如实报告 `canWriteFiles: no`，任务应返回 `BLOCKED` 而不是假装已保存。
+
+**零厚度后缘会让放样失败（实测）**：闭合截面的上下后缘坐标完全重合（均为 0.000000）时，`AddNewLoft` 的 Update 必然以 `E_FAIL` 失败；同一截面只要后缘有极小但有限的厚度（±0.00126，300 mm 弦长上约 0.25 mm）即可正常放样。该结论由三组对照实验得出：有弯度/对称、78 点/48 点、带攻角与否都不影响结果，唯一决定因素是后缘是否零厚度。因此本插件的翼型默认保留有限后缘厚度。
+
+**装配体位置可读，包围盒不可读（实测）**：`Documents.Add("Product")`、`Product.Products` 遍历、`Product.Position.GetComponents`（**按引用传 12 元素数组**，原始数组为三根轴列（0..8）及原点（9..11）；r6 转换为内部行主序 3×4，再沿树复合。先写再读相同数组不能证明其几何语义；应另行核对实际位置，见 REVIEW_r6.md）、`Position.SetComponents` 均可用。**但没有任何包围盒接口**：`Measurable.GetBoundingBox`（返回式与传参式两种写法）以及 `Product`、`Part`、`SelectedElement`、`HybridShape` 上的 `GetBoundingBox` 一律返回 `438`；同一 measurable 上几何引用的 `Length` 正常，故判定为接口缺失。结论：**位置走 CATIA 或 STEP，空间极限只能自行从几何计算**。
+
+**STEP 记录的切分必须容忍字符串**：STEP 允许字符串字面量内出现 `;`（真实文件头的 `FILE_DESCRIPTION(...,'2;1')` 就是一例），也允许用 `''` 表示撇号。切分器若把跨块的 `''` 只回退到输出而不重新送入状态机，就会每个受影响的块漂移一个引号——实测中一次漂移把 79 MB 实体并成了一条记录，导致 337 万实体只解析出 245 万条。`test/assembly.mjs` 用合成夹具把这两种情形固化为回归测试。
+
+
+**STEP 装配体的几何链接链（实测，v1.1.0）**：零件的 `SHAPE_DEFINITION_REPRESENTATION` 指向的是**放置表示**（里面只有放置帧），实体几何挂在另一表示上，二者由**简单** `SHAPE_REPRESENTATION_RELATIONSHIP` 相连；该关系是独立实体、反向指向表示，因此前向遍历必须为它建反向索引。复合的 `REPRESENTATION_RELATIONSHIP` 连接的是实例与父级上下文，**跟进去就会把别的零件的帧原点算进本零件**——实测中这曾让 6 个兄弟子装配共享一个 3.9 m 盒子。
+
+**包络修订限制（v1.1 同版本修订）**：大尺寸不等于构造几何，远处控制点也可能决定真实曲面的凸出。非有理样条控制网现完整保留；过滤半径、缺失引用或不支持的几何必须使受影响部件带不完整警告。所有包络均为近似参考，`boundsUsableForCompliance` 为 false，不能用于证明可用空间或规则通过。
+
+**历史验证与本次验证分开**：原版开发记录曾给出一份整车 STEP 的包络统计；同版本修订未重新测量该文件。当前新增测试验证曲线包含性、完整曲面控制网、缺失几何提示及 Agent/CSV 调用链；测试结果不替代真实 CAD 测量。
+
+
+## r6 补充约定
+
+包版本保持 1.1.0，修订字段为 r6。参数检查与建模共用几何计算；样条/放样的采样点盒不证明曲面包含性，规则结果应报告 PARTIAL_SUCCESS 并请求实测。可用 elementIds 指定气动元素范围、groundY 指定地面基准。装配插入显式设置刚体矩阵；替换先插入并继承旧件局部位置再删除旧实例，约束与发布引用需复核。componentPath 按逐级唯一实例名定位嵌套部件。CATProduct 外部引用不会随 saveAs 自动复制。r6 的新代码没有经过实机端到端验证，不应沿用历史实测标签。
