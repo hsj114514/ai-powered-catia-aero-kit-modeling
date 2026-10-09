@@ -128,7 +128,7 @@ for (const [label, spec] of Object.entries(SHAPES)) {
 // ---- 2. every registered tool compiles to a valid object-rooted raw schema ----
 const bridge = new CatiaBridge(normalizeSettings({ projectRoot: path.join(process.cwd(), '.test-output', 'catia-schema-test') }, path.join(process.cwd(), '.test-output')));
 const definitions = buildToolDefinitions(bridge, bridge.settings);
-check('tool count', definitions.length === 27, `got ${definitions.length}`);
+check('tool count', definitions.length === 44, `got ${definitions.length}`);
 const names = definitions.map((definition) => definition.name).sort();
 // Tools that drive CATIA are catia_*; a tool that only parses a file on disk is prefixed with the
 // format it reads, so a name never implies a CATIA session that is not needed.

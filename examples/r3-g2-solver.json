@@ -1,0 +1,35 @@
+{
+  "start": [
+    0,
+    0,
+    0
+  ],
+  "end": [
+    100,
+    20,
+    10
+  ],
+  "tangentStart": [
+    1,
+    0,
+    0
+  ],
+  "tangentEnd": [
+    1,
+    0,
+    0
+  ],
+  "curvatureStart": [
+    0,
+    0.002,
+    0
+  ],
+  "curvatureEnd": [
+    0,
+    0,
+    0.002
+  ],
+  "speedStart": 105,
+  "speedEnd": 105,
+  "count": 65
+}

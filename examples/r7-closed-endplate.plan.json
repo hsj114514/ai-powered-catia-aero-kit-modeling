@@ -1,0 +1,471 @@
+{
+  "project": "PUBLIC_RIGHT_SOLIDS",
+  "dryRun": true,
+  "steps": [
+    {
+      "id": "MAIN_WALL",
+      "kind": "closed_loft",
+      "params": {
+        "sections": [
+          [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              160,
+              0,
+              0
+            ],
+            [
+              160,
+              90,
+              0
+            ],
+            [
+              0,
+              90,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              0,
+              3
+            ],
+            [
+              160,
+              0,
+              3
+            ],
+            [
+              160,
+              90,
+              3
+            ],
+            [
+              0,
+              90,
+              3
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "PUB_FOOT_E0",
+      "kind": "line",
+      "params": {
+        "x1": 0,
+        "y1": 0,
+        "z1": 0,
+        "x2": 0,
+        "y2": 3,
+        "z2": 0
+      }
+    },
+    {
+      "id": "PUB_FOOT_E1",
+      "kind": "line",
+      "params": {
+        "x1": 0,
+        "y1": 3,
+        "z1": 0,
+        "x2": 0,
+        "y2": 3,
+        "z2": 8
+      }
+    },
+    {
+      "id": "PUB_FOOT_E2_P0",
+      "kind": "point",
+      "params": {
+        "x": 0,
+        "y": 3,
+        "z": 8
+      }
+    },
+    {
+      "id": "PUB_FOOT_E2_P1",
+      "kind": "point",
+      "params": {
+        "x": 0,
+        "y": 15,
+        "z": 20
+      }
+    },
+    {
+      "id": "PUB_FOOT_E2_P2",
+      "kind": "point",
+      "params": {
+        "x": 0,
+        "y": 3,
+        "z": 32
+      }
+    },
+    {
+      "id": "PUB_FOOT_E2",
+      "kind": "gsd_api",
+      "params": {
+        "factory": "AddNewCircle3Points",
+        "arguments": [
+          {
+            "ref": "PUB_FOOT_E2_P0"
+          },
+          {
+            "ref": "PUB_FOOT_E2_P1"
+          },
+          {
+            "ref": "PUB_FOOT_E2_P2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "PUB_FOOT_E3",
+      "kind": "line",
+      "params": {
+        "x1": 0,
+        "y1": 3,
+        "z1": 32,
+        "x2": 0,
+        "y2": 3,
+        "z2": 40
+      }
+    },
+    {
+      "id": "PUB_FOOT_E4",
+      "kind": "line",
+      "params": {
+        "x1": 0,
+        "y1": 3,
+        "z1": 40,
+        "x2": 0,
+        "y2": 0,
+        "z2": 40
+      }
+    },
+    {
+      "id": "PUB_FOOT_E5",
+      "kind": "line",
+      "params": {
+        "x1": 0,
+        "y1": 0,
+        "z1": 40,
+        "x2": 0,
+        "y2": 0,
+        "z2": 29
+      }
+    },
+    {
+      "id": "PUB_FOOT_E6_P0",
+      "kind": "point",
+      "params": {
+        "x": 0,
+        "y": 0,
+        "z": 29
+      }
+    },
+    {
+      "id": "PUB_FOOT_E6_P1",
+      "kind": "point",
+      "params": {
+        "x": 0,
+        "y": 9,
+        "z": 20
+      }
+    },
+    {
+      "id": "PUB_FOOT_E6_P2",
+      "kind": "point",
+      "params": {
+        "x": 0,
+        "y": 0,
+        "z": 11
+      }
+    },
+    {
+      "id": "PUB_FOOT_E6",
+      "kind": "gsd_api",
+      "params": {
+        "factory": "AddNewCircle3Points",
+        "arguments": [
+          {
+            "ref": "PUB_FOOT_E6_P0"
+          },
+          {
+            "ref": "PUB_FOOT_E6_P1"
+          },
+          {
+            "ref": "PUB_FOOT_E6_P2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "PUB_FOOT_E7",
+      "kind": "line",
+      "params": {
+        "x1": 0,
+        "y1": 0,
+        "z1": 11,
+        "x2": 0,
+        "y2": 0,
+        "z2": 0
+      }
+    },
+    {
+      "id": "PUB_FOOT_WIRE",
+      "kind": "gsd_api",
+      "params": {
+        "factory": "AddNewJoin",
+        "arguments": [
+          {
+            "ref": "PUB_FOOT_E0"
+          },
+          {
+            "ref": "PUB_FOOT_E1"
+          }
+        ],
+        "configure": [
+          {
+            "method": "AddElement",
+            "arguments": [
+              {
+                "ref": "PUB_FOOT_E2"
+              }
+            ]
+          },
+          {
+            "method": "AddElement",
+            "arguments": [
+              {
+                "ref": "PUB_FOOT_E3"
+              }
+            ]
+          },
+          {
+            "method": "AddElement",
+            "arguments": [
+              {
+                "ref": "PUB_FOOT_E4"
+              }
+            ]
+          },
+          {
+            "method": "AddElement",
+            "arguments": [
+              {
+                "ref": "PUB_FOOT_E5"
+              }
+            ]
+          },
+          {
+            "method": "AddElement",
+            "arguments": [
+              {
+                "ref": "PUB_FOOT_E6"
+              }
+            ]
+          },
+          {
+            "method": "AddElement",
+            "arguments": [
+              {
+                "ref": "PUB_FOOT_E7"
+              }
+            ]
+          },
+          {
+            "method": "SetConnex",
+            "arguments": [
+              true
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "FOOT_RIB_SOLID",
+      "kind": "capped_extrude",
+      "params": {
+        "from": "PUB_FOOT_WIRE",
+        "direction": [
+          1,
+          0,
+          0
+        ],
+        "length": 120
+      }
+    },
+    {
+      "id": "PUB_FLARE_E0_P0",
+      "kind": "point",
+      "params": {
+        "x": 200.0,
+        "y": 0,
+        "z": 0.0
+      }
+    },
+    {
+      "id": "PUB_FLARE_E0_P1",
+      "kind": "point",
+      "params": {
+        "x": 215.52914270615125,
+        "y": 0,
+        "z": 2.044450422655899
+      }
+    },
+    {
+      "id": "PUB_FLARE_E0_P2",
+      "kind": "point",
+      "params": {
+        "x": 230.0,
+        "y": 0,
+        "z": 8.03847577293368
+      }
+    },
+    {
+      "id": "PUB_FLARE_E0",
+      "kind": "gsd_api",
+      "params": {
+        "factory": "AddNewCircle3Points",
+        "arguments": [
+          {
+            "ref": "PUB_FLARE_E0_P0"
+          },
+          {
+            "ref": "PUB_FLARE_E0_P1"
+          },
+          {
+            "ref": "PUB_FLARE_E0_P2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "PUB_FLARE_E1",
+      "kind": "line",
+      "params": {
+        "x1": 230.0,
+        "y1": 0,
+        "z1": 8.03847577293368,
+        "x2": 228.5,
+        "y2": 0,
+        "z2": 10.636551984286996
+      }
+    },
+    {
+      "id": "PUB_FLARE_E2_P0",
+      "kind": "point",
+      "params": {
+        "x": 228.5,
+        "y": 0,
+        "z": 10.636551984286996
+      }
+    },
+    {
+      "id": "PUB_FLARE_E2_P1",
+      "kind": "point",
+      "params": {
+        "x": 214.75268557084368,
+        "y": 0,
+        "z": 4.942227901523104
+      }
+    },
+    {
+      "id": "PUB_FLARE_E2_P2",
+      "kind": "point",
+      "params": {
+        "x": 200.0,
+        "y": 0,
+        "z": 3.0
+      }
+    },
+    {
+      "id": "PUB_FLARE_E2",
+      "kind": "gsd_api",
+      "params": {
+        "factory": "AddNewCircle3Points",
+        "arguments": [
+          {
+            "ref": "PUB_FLARE_E2_P0"
+          },
+          {
+            "ref": "PUB_FLARE_E2_P1"
+          },
+          {
+            "ref": "PUB_FLARE_E2_P2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "PUB_FLARE_E3",
+      "kind": "line",
+      "params": {
+        "x1": 200.0,
+        "y1": 0,
+        "z1": 3.0,
+        "x2": 200.0,
+        "y2": 0,
+        "z2": 0.0
+      }
+    },
+    {
+      "id": "PUB_FLARE_WIRE",
+      "kind": "gsd_api",
+      "params": {
+        "factory": "AddNewJoin",
+        "arguments": [
+          {
+            "ref": "PUB_FLARE_E0"
+          },
+          {
+            "ref": "PUB_FLARE_E1"
+          }
+        ],
+        "configure": [
+          {
+            "method": "AddElement",
+            "arguments": [
+              {
+                "ref": "PUB_FLARE_E2"
+              }
+            ]
+          },
+          {
+            "method": "AddElement",
+            "arguments": [
+              {
+                "ref": "PUB_FLARE_E3"
+              }
+            ]
+          },
+          {
+            "method": "SetConnex",
+            "arguments": [
+              true
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "TAIL_FLARE_SOLID",
+      "kind": "capped_extrude",
+      "params": {
+        "from": "PUB_FLARE_WIRE",
+        "direction": [
+          0,
+          1,
+          0
+        ],
+        "length": 80
+      }
+    }
+  ],
+  "note": "PUBLIC SYNTHETIC FIXTURE. Three separate bodies, deliberately separated from each other; not a complete endplate. Offline contract only; native CATIA geometry and rules are unverified."
+}

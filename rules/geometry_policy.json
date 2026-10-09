@@ -1,0 +1,21 @@
+{
+  "version": "1.2.0-r10",
+  "source_type": "internal",
+  "description": "Modelling closure obligations and task selection policy, not competition dimensions.",
+  "runtime": "lib/planning-policy.js",
+  "requirement_types": [
+    "closed_wire",
+    "closed_shell",
+    "solid"
+  ],
+  "requirement_fields": [
+    "target",
+    "type",
+    "reason"
+  ],
+  "sketcher": "Prefer supported closed polygon Sketcher with compatible length constraints. Preserve curved airfoils; use analytic GSD arcs until curved sketches are implemented.",
+  "openings": "Preserve intended openings; declare closed material perimeter/solid, not a sealed surface over a design opening.",
+  "repair": "Relevant native attempts, exact-build journal fingerprint, maximum 25 percent open-penalty mitigation; no planned-attempt reduction and no closure success inference.",
+  "delivery": "Only caller-attributed closure inspection contract can satisfy closure obligations; offline score cannot certify delivery or competition compliance.",
+  "weights": "scoring/global_metrics.json and scoring/front_wing_weights.json"
+}

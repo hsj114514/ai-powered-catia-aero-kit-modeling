@@ -1,0 +1,250 @@
+{
+  "verification": "offline signatures only; replace topology placeholders with actual CATIA BRep references",
+  "templates": [
+    {
+      "factory": "AddNewFilletBiTangent",
+      "arguments": [
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        },
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        },
+        5,
+        1,
+        1,
+        0,
+        0
+      ],
+      "configure": []
+    },
+    {
+      "factory": "AddNewFilletTriTangent",
+      "arguments": [
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        },
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        },
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        },
+        1,
+        1,
+        1,
+        0,
+        0
+      ],
+      "configure": []
+    },
+    {
+      "factory": "AddNewAutoFillet",
+      "bodySource": "BASE_GEOMETRY_ID",
+      "arguments": [
+        5,
+        5
+      ],
+      "configure": []
+    },
+    {
+      "factory": "AddNewEdgeFilletWithConstantRadius",
+      "bodySource": "BASE_GEOMETRY_ID",
+      "arguments": [
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        },
+        0,
+        5
+      ],
+      "configure": []
+    },
+    {
+      "factory": "AddNewEdgeFilletWithVaryingRadius",
+      "bodySource": "BASE_GEOMETRY_ID",
+      "arguments": [
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        },
+        0,
+        0,
+        5
+      ],
+      "configure": []
+    },
+    {
+      "factory": "AddNewFaceFillet",
+      "bodySource": "BASE_GEOMETRY_ID",
+      "arguments": [
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        },
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        },
+        5
+      ],
+      "configure": []
+    },
+    {
+      "factory": "AddNewSolidEdgeFilletWithConstantRadius",
+      "bodySource": "BASE_GEOMETRY_ID",
+      "arguments": [
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        },
+        0,
+        5
+      ],
+      "configure": []
+    },
+    {
+      "factory": "AddNewSolidEdgeFilletWithVaryingRadius",
+      "bodySource": "BASE_GEOMETRY_ID",
+      "arguments": [
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        },
+        0,
+        0,
+        5
+      ],
+      "configure": []
+    },
+    {
+      "factory": "AddNewSolidFaceFillet",
+      "bodySource": "BASE_GEOMETRY_ID",
+      "arguments": [
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        },
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        },
+        5
+      ],
+      "configure": []
+    },
+    {
+      "factory": "AddNewSolidTritangentFillet",
+      "bodySource": "BASE_GEOMETRY_ID",
+      "arguments": [
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        },
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        },
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        }
+      ],
+      "configure": []
+    },
+    {
+      "factory": "AddNewSurfaceEdgeFilletWithConstantRadius",
+      "bodySource": "BASE_GEOMETRY_ID",
+      "arguments": [
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        },
+        0,
+        5
+      ],
+      "configure": []
+    },
+    {
+      "factory": "AddNewSurfaceEdgeFilletWithVaryingRadius",
+      "bodySource": "BASE_GEOMETRY_ID",
+      "arguments": [
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        },
+        0,
+        0,
+        5
+      ],
+      "configure": []
+    },
+    {
+      "factory": "AddNewSurfaceFaceFillet",
+      "bodySource": "BASE_GEOMETRY_ID",
+      "arguments": [
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        },
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        },
+        5
+      ],
+      "configure": []
+    },
+    {
+      "factory": "AddNewSurfaceTritangentFillet",
+      "bodySource": "BASE_GEOMETRY_ID",
+      "arguments": [
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        },
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        },
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        }
+      ],
+      "configure": []
+    },
+    {
+      "factory": "AddNewSurfacicAutoFillet",
+      "bodySource": "BASE_GEOMETRY_ID",
+      "arguments": [
+        5
+      ],
+      "configure": []
+    },
+    {
+      "factory": "AddNewTritangentFillet",
+      "bodySource": "BASE_GEOMETRY_ID",
+      "arguments": [
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        },
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        },
+        {
+          "ref": "BASE_GEOMETRY_ID",
+          "brep": "REPLACE_WITH_ACTUAL_FACE_OR_EDGE_BREP"
+        }
+      ],
+      "configure": []
+    }
+  ]
+}

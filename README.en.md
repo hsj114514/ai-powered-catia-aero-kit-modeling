@@ -1,77 +1,64 @@
 # AI-Powered CATIA Aero Kit Modeling
 
-[中文说明](README.md) · **v1.1 / 1.1.0 · r6** · GPL-3.0-only
+**v1.2.0 / r11 · GPL-3.0-only · GitHub version update**
 
-A CATIA V5 parametric modelling toolkit for race-car aerodynamic kits. **v1.1 adds component placement reading and assembly operations.** Source repository: [hsj114514/ai-powered-catia-aero-kit-modeling](https://github.com/hsj114514/ai-powered-catia-aero-kit-modeling).
+[中文说明](README.md) · [Release notes](RELEASE_NOTES.md) · [Known issues and goals](ROADMAP.md)
 
-## Features
+A CATIA V5 parametric modelling toolkit for FSEC/FSAE aerodynamic components. It includes wing/flap/endplate/diffuser generators, component placement reading, assembly operations, GSD adapters, straight-line Sketcher support, plan preparation and geometric rule screening.
 
-- NACA/custom airfoils, wings, chained flaps, endplates, diffusers and reference geometry.
-- Parameter ledgers, numbered model rebuilds, parameter rollback, audit records and exports.
-- Offline STEP assembly structure and placements, CSV export and optional approximate envelopes.
-- Absolute component placements composed through nested CATIA assemblies.
-- Guarded component insertion, removal and replacement, with optional new CATProduct output.
-- Screening of selected geometric limits from caller-supplied vehicle datums and regions.
+## Author's note
 
-Scope is geometry. Mounting stiffness, approximately 200 N load deformation, structural strength and aerodynamic performance are not evaluated.
+Original wording, retained at the author's request:
 
-## Requirements and portability
+> 全题目光向我看齐，看我看我，我宣布个事，我是个sb，gsd的功能v1.2才想起来加
 
-Offline modules require Node.js 18+ and use only built-in modules: no dependency installation or build. Live automation requires Windows, CATIA V5, a working COM interface and appropriate licences. The plugin entry requires a DSH/Cordis host providing the tools service.
+There is still substantial room to improve modelling: the Agent often prefers splines, does not establish enough useful constraints proactively, and can leave required surfaces open. It is usable for some work, but complex endplates still need inspection and adjustment. Improving these issues before v1.3 is a goal, not a guaranteed release commitment.
 
-Other agents need an adapter for the exported tool definitions or direct module integration. This package does not provide a generic MCP server. The internal package name remains `@local/catia-aero-kit`; `private: true` prevents accidental npm publication and does not prevent GitHub distribution.
+The quote is self-deprecating commentary. Basic spline/loft paths existed in v1.1, and GSD was expanded during v1.1.1; v1.2 consolidates broader adapters, catalogs and planning policies.
 
-After extracting the full directory, run:
+## Changes from v1.1
+
+Compared with the saved v1.1.0/r6 GitHub candidate: **27 → 44 registered tools; 17 added, none removed**. Placement reading and assembly insert/remove/replace already existed in v1.1.
+
+- 145 whitelisted factory adapters; 29 English/Chinese commands, 24 adapted and 5 explicitly unimplemented. Adapter coverage is not native validation.
+- Straight polygon/open polyline sketches, length/direction/relation constraints, endpoint coincidence and native readback checks.
+- Default sketch-first routing for exactly representable coplanar two-point line sections consumed by Loft; freeform curves are not automatically changed.
+- Batch plans, dry runs, model review, task-based scoring, bounded habit bonuses, closure penalties and limited relief for relevant actual repair attempts.
+- Global/front-wing design resources, rule provenance, deployment fingerprints and failure/rebuild diagnostics.
+- Public documentation, offline CI and newly generated synthetic fixtures. Private CAD-derived outlines and historical live measurements are excluded.
+
+## Quick start: offline
+
+Node.js 18+; no npm runtime dependencies or build step. From the extracted catia-aero-kit folder:
 
 ```sh
 node scripts/doctor.mjs
 node scripts/checksums.mjs
-```
-
-On Windows, `powershell -NoProfile -File scripts/doctor.ps1` also checks script-host availability and CATIA COM registration. Diagnostics do not install software or start CATIA. Registration alone is not a live functionality check.
-
-If Windows blocks an unsigned script, inspect its source and add `-ExecutionPolicy Bypass` to that invocation. This affects only that PowerShell process and does not change system policy. Node-based discovery requires no such parameter.
-
-For DSH, import the extracted package directory using the host's `plugin_manager action: install_bundle, target: <absolute package directory>` interface; confirm syntax against the installed host version.
-
-## Configuration and coordinates
-
-The shipped `projectRoot: ''` automatically selects an absolute directory from LOCALAPPDATA, XDG_DATA_HOME, HOME/.local/share, TEMP, or the system temporary directory, then appends catia-aero-kit/projects. An explicit writable absolute root can override it. Back up projects if the temporary fallback is used.
-
-Runtime maxLevel defaults to 2; the shipped configuration uses 3 to retain assembly removal/replacement. Level 3 also requires an exact instance-name confirmation and a reason, as well as actual human authorization.
-
-Modelling coordinates are millimetres, +X aft, +Y up, +Z outboard. STEP values retain source units without automatic conversion. Resolve source units and vehicle datums before comparison.
-
-Placement reading returns row-major 3×4 values:
-`[r00,r01,r02,tx, r10,r11,r12,ty, r20,r21,r22,tz]`.
-
-Assembly insertion takes CATIA axis components:
-`[Xx,Xy,Xz, Yx,Yy,Yz, Zx,Zy,Zz, ox,oy,oz]`.
-These representations are different. Inspect unresolved placements, depth/count truncation and envelope quality flags. The Chinese README contains complete tool-call examples.
-
-## Assembly and rule limits
-
-Assembly operations modify the current CATIA session. A later failure can leave it changed. Optional saveAs refuses existing output files; without it the change stays in the session. External references remain linked to source files: use CATIA Save Management to collect them for another machine.
-
-Replacement preserves the previous local placement, but local frames, constraints and publications require inspection. Component origins do not establish geometric clearance.
-
-STEP envelopes are approximate and always marked unsuitable for compliance certification. Spline/loft checks screen their input samples and may return PARTIAL_SUCCESS. Final surfaces, clearance and complete event compliance require measurement and the applicable official rules.
-
-## Development and delivery
-
-```sh
+node scripts/prepare-plan.mjs examples/r11-sketch-foot-input.plan.json prepared.plan.json
+node scripts/evaluate-plan.mjs prepared.plan.json
 node scripts/verify.mjs
-node scripts/geometry-check.mjs <ledger.json> <rules.json>
 ```
 
-Geometry screening exits with 0 for selected exact geometry passing supplied checks, 2 for violations/incomplete screening, and 1 for invalid input/errors.
+The output plan must not already exist. These commands do not start CATIA or install the plugin. Doctor prints local paths; do not publish its output. See [public fixtures](examples/README.md); their arbitrary dimensions are not validated vehicle designs.
 
-Windows archive creation: `powershell -NoProfile -File scripts/package.ps1 -OutputFile <new absolute zip path>`. The archive whitelist excludes generated reports, CAD files and local project data and includes a SHA256 manifest. Checksums detect changes, not publisher authenticity.
+## Live use and compatibility
 
-See [CHANGELOG](CHANGELOG.md), [release notes](RELEASE_NOTES.md), [portability record](PORTABILITY.md), [contributing](CONTRIBUTING.md) and [security](SECURITY.md). Historical review documents do not establish live verification for this candidate.
+Live tools require Windows, CATIA V5, registered CATIA.Application COM and the relevant licences. The plugin targets DSH/Cordis with a tools service; injecting design resources also requires systemPrompt support. Other Agents need an adapter; this is not a standalone MCP server or universal installer.
 
-This preparation checks source syntax and delivery integrity. Regression suites and live CATIA verification were not run for this candidate.
+See [deployment](REINSTALL_r11.md) and [portability](PORTABILITY.md). Replace the full package, then check catia_policy_status for 1.2.0/r11, 44 tools and 26 resource fingerprints. Updating Markdown alone does not update tools. The public bundle retains maxLevel:3 and remove/replace confirm/reason guards; setting it to2 disables those operations. Use authorised engineering copies.
 
-## Licence
+A blank projectRoot resolves to a per-user output directory from environment variables; the script host is located through the system directory. No developer-specific absolute paths are embedded. Discovery does not install CATIA or verify licence availability.
 
-GNU GPL v3 only, **GPL-3.0-only**: see [LICENSE](LICENSE). External software is not bundled and retains its own licensing.
+## Boundaries
+
+Default units: millimetres; +X rearward, +Y upward, +Z right/outboard. STEP retains source units without automatic conversion. Coordinate conversion must be explicit.
+
+Open construction sections and intentional footplate openings are allowed. Required closed material boundaries must be declared and checked separately. A score, Join area or successful script Update does not independently certify overall closure, G2, aerodynamic performance or competition compliance.
+
+Arc/airfoil sketches, tangent/radius sketch constraints, Pad/Pocket and full constraint certification are not implemented. Variable Offset, Rough Offset, Adaptive Sweep, Surface Simplification and Untrim remain unimplemented commands. D3 minimum-distance type mismatch and D4 section Update failure have no confirmed root cause or claimed native fix.
+
+The current scope is geometry; it excludes mounting stiffness, deformation under approximately 200 N and automatic CFD. Tests are offline contracts, not real CATIA verification. The preparation snapshot was not installed or tested in CATIA. This source is used for the GitHub version update; CI results must be read from the actual workflow runs.
+
+## More
+
+[Sketch routing](R11_SKETCH_ROUTING.md) · [GSD commands](GSD_COMMANDS_v1.2.0-r5.md) · [Scoring](EVALUATOR_REFERENCE.md) · [Release review](GITHUB_RELEASE_REVIEW.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Licence](LICENSE)

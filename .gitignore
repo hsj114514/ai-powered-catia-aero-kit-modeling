@@ -15,6 +15,7 @@ test/*-report.txt
 test/envelope-regression-*/
 test/_fixtures/
 test/r6-*/
+test/r2-*/
 test/project-root-*/
 .test-output/
 *.zip
@@ -36,3 +37,15 @@ audit.jsonl
 *.iges
 *.igs
 *.stl
+
+# Local reports and ad-hoc plans (public examples remain tracked)
+/doctor*.json
+/prepared.plan.json
+/test/*-offline-*/
+/test/catia-r7-*/
+/test/*-report.txt
+/test/*-report.json
+*.CATAnalysis
+*.CATProcess
+*.CATShape
+*.3dxml

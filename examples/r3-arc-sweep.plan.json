@@ -1,0 +1,123 @@
+{
+  "project": "r3_arc_sweep",
+  "steps": [
+    {
+      "id": "A",
+      "kind": "point",
+      "params": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      }
+    },
+    {
+      "id": "B",
+      "kind": "point",
+      "params": {
+        "x": 0,
+        "y": 10,
+        "z": 10
+      }
+    },
+    {
+      "id": "C",
+      "kind": "point",
+      "params": {
+        "x": 0,
+        "y": 0,
+        "z": 20
+      }
+    },
+    {
+      "id": "D",
+      "kind": "point",
+      "params": {
+        "x": 300,
+        "y": 0,
+        "z": 0
+      }
+    },
+    {
+      "id": "ARC",
+      "kind": "gsd_api",
+      "params": {
+        "factory": "AddNewCircle3Points",
+        "arguments": [
+          {
+            "ref": "A"
+          },
+          {
+            "ref": "B"
+          },
+          {
+            "ref": "C"
+          }
+        ],
+        "configure": [
+          {
+            "method": "SetLimitation",
+            "arguments": [
+              2
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "GUIDE",
+      "kind": "gsd_api",
+      "params": {
+        "factory": "AddNewLinePtPt",
+        "arguments": [
+          {
+            "ref": "A"
+          },
+          {
+            "ref": "D"
+          }
+        ],
+        "configure": []
+      }
+    },
+    {
+      "id": "SWEEP",
+      "kind": "gsd_api",
+      "params": {
+        "factory": "AddNewSweepExplicit",
+        "arguments": [
+          {
+            "ref": "ARC"
+          },
+          {
+            "ref": "GUIDE"
+          }
+        ],
+        "configure": [
+          {
+            "property": "Context",
+            "value": 0
+          },
+          {
+            "property": "Mode",
+            "value": 1
+          },
+          {
+            "property": "SubType",
+            "value": 3
+          },
+          {
+            "property": "PullingDirection",
+            "value": {
+              "direction": [
+                1,
+                0,
+                0
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "note": "Explicit analytic arc and guide sweep; offline candidate, CATIA update not tested."
+}

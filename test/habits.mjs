@@ -1,0 +1,45 @@
+// SPDX-License-Identifier: GPL-3.0-only
+import assert from 'node:assert/strict';
+import { evaluateHabitPriors as habits, HABIT_KEYS, planarAxis } from '../lib/habit-priors.js';
+import { evaluateBuildPlan, loadWeights } from '../lib/evaluator.js';
+const weights=loadWeights(new URL('../scoring/front_wing_weights.json',import.meta.url));
+const section={id:'Profile',kind:'endplate',params:{outlinePoints:[[0,0],[100,0],[100,50],[0,50]],z:0,thickness:2}}, sketch={id:'Sketch',kind:'sketch',params:{points:[[0,0],[100,0],[100,50],[0,50]]}};
+const plan=steps=>({steps});
+assert.equal(habits(plan([section])).habitSketchOnDatum2D,0);
+assert.equal(habits(plan([section,sketch])).habitSketchOnDatum2D,0,'unrelated sketch cannot grant any reward');
+const substitute={...section,substitute:{preferred:'sketcher',reason:'capability probe unavailable'}};
+assert.equal(habits(plan([substitute])).habitSketchOnDatum2D,0,'caller must confirm unavailability');
+assert.equal(habits(plan([substitute]),{sketcherAvailable:false}).habitSketchOnDatum2D,.5);
+assert.equal(habits(plan([substitute]),{sketcherAvailable:false}).habitDeclaredSubstitute,1);
+assert.equal(habits(plan([{...section,params:{...section.params,note:'substitute sketch sampled',sketchUnavailable:true}}])).habitDeclaredSubstitute,null);
+assert.equal(habits(plan([sketch])).habitSketchOnDatum2D,1);
+assert.equal(habits(plan([{id:'Airfoil',kind:'section',params:{naca:'2412',chord:100}}])).habitSketchOnDatum2D,null,'polygon Sketcher is not an equivalent curved airfoil tool');
+assert.equal(habits(plan([{id:'Plane',kind:'plane',params:{base:'XY',offset:3}}])).habitSketchOnDatum2D,null);
+assert.equal(habits(plan([{id:'Plane',kind:'plane',params:{base:'XY',offset:3}}])).habitNamedDatumPlane,0);
+assert.equal(planarAxis([[0,1,2],[0,3,4],[0,5,6]]),'YZ');
+assert.equal(planarAxis([[0,1],[3,4],[5,6]]),'XY');
+for(const bad of [[[0,0,Infinity],[0,1,2],[0,2,3]],[['0',1,2],[0,2,3],[0,3,4]]]) assert.equal(planarAxis(bad),null);
+const right={id:'R_Guide',kind:'guide_curve',params:{points:[[0,0,10],[10,0,10],[10,10,10]]}};
+const left={id:'L_Guide',kind:'guide_curve',params:{points:[[0,0,-10],[10,0,-10],[10,10,-10]]}};
+assert.equal(habits(plan([right,left])).habitSymmetryAboutCentreline,1);
+assert.equal(habits(plan([right,{...left,params:{points:[[0,0,-9],[10,0,-9],[10,10,-9]]}}])).habitSymmetryAboutCentreline,0);
+assert.equal(habits(plan([{id:'R_Surface',kind:'surface',params:{}},{id:'L_Surface',kind:'surface',params:{}}])).habitSymmetryAboutCentreline,0,'L/R names alone are insufficient');
+const solid={id:'Body',kind:'capped_extrude',part:'Endplate',params:{from:'Sketch',direction:[0,0,1],length:2}};
+assert.equal(habits(plan([sketch,solid])).habitSingleClosedBody,null,'offline candidate is not a measured closed body');
+assert.equal(habits(plan([sketch,solid]),{evidence:{source:'CATIA',runId:'synthetic-unit',bodies:{Body:{volumeMm3:5,bodyId:'NativeBodyOne'}}}}).habitSingleClosedBody,1);
+const second={...solid,id:'SecondFeature'};
+assert.equal(habits(plan([sketch,solid,second]),{evidence:{source:'CATIA',runId:'synthetic-unit',bodies:{Body:{volumeMm3:5,bodyId:'One'},SecondFeature:{volumeMm3:3,bodyId:'One'}}}}).habitSingleClosedBody,1,'count final bodies, not construction steps');
+assert.equal(habits(plan([solid,sketch])).habitDatumFirstOrdering,habits(plan([sketch,solid])).habitDatumFirstOrdering);
+for(const k of HABIT_KEYS) assert.ok(k in habits(plan([])));
+const noHabits={...weights,metrics:{...weights.metrics,...Object.fromEntries(HABIT_KEYS.map(k=>[k,0]))}};
+for(const p of [plan([section]),plan([sketch]),plan([sketch,solid])]) {
+ const base=evaluateBuildPlan(p,noHabits),rewarded=evaluateBuildPlan(p,weights);
+ assert.equal(base.baseScore100,rewarded.baseScore100);
+ assert.ok(rewarded.score100>=base.score100,'a zero/positive habit never lowers the normalized score');
+ assert.ok(rewarded.habitBonusPoints>=0&&rewarded.habitBonusPoints<=3);
+}
+assert.throws(()=>evaluateBuildPlan(plan([sketch]),{metrics:{habitSketchOnDatum2D:10}}),/small/);
+assert.throws(()=>evaluateBuildPlan(plan([sketch]),{metrics:{habitSketchOnDatum2D:.2},habitBonusCapPoints:4}),/\[0,3\]/);
+const rejected=evaluateBuildPlan(plan([sketch]),weights,{candidate:{overwrite_source:true}});
+assert.equal(rejected.eligible,false);assert.equal(rejected.score100,null);
+console.log('PASS: evidence-conditioned habit priors, no name/prose spoofing, per-profile and per-part scope, capped positive-only scoring.');

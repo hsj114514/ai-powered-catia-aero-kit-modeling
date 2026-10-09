@@ -1,0 +1,103 @@
+{
+  "project": "r3_g2_connect",
+  "steps": [
+    {
+      "id": "A",
+      "kind": "point",
+      "params": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      }
+    },
+    {
+      "id": "B",
+      "kind": "point",
+      "params": {
+        "x": 80,
+        "y": 0,
+        "z": 0
+      }
+    },
+    {
+      "id": "C",
+      "kind": "point",
+      "params": {
+        "x": 140,
+        "y": 30,
+        "z": 0
+      }
+    },
+    {
+      "id": "D",
+      "kind": "point",
+      "params": {
+        "x": 220,
+        "y": 30,
+        "z": 0
+      }
+    },
+    {
+      "id": "CURVE1",
+      "kind": "gsd_api",
+      "params": {
+        "factory": "AddNewLinePtPt",
+        "arguments": [
+          {
+            "ref": "A"
+          },
+          {
+            "ref": "B"
+          }
+        ],
+        "configure": []
+      }
+    },
+    {
+      "id": "CURVE2",
+      "kind": "gsd_api",
+      "params": {
+        "factory": "AddNewLinePtPt",
+        "arguments": [
+          {
+            "ref": "C"
+          },
+          {
+            "ref": "D"
+          }
+        ],
+        "configure": []
+      }
+    },
+    {
+      "id": "G2_CONNECT",
+      "kind": "gsd_api",
+      "params": {
+        "factory": "AddNewConnect",
+        "arguments": [
+          {
+            "ref": "CURVE1"
+          },
+          {
+            "ref": "B"
+          },
+          1,
+          2,
+          1,
+          {
+            "ref": "CURVE2"
+          },
+          {
+            "ref": "C"
+          },
+          1,
+          2,
+          1,
+          false
+        ],
+        "configure": []
+      }
+    }
+  ],
+  "note": "Native G2 requested on both ends; offline contract validated only, no native continuity measurement."
+}

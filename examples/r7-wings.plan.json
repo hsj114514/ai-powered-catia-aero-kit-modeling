@@ -1,0 +1,33 @@
+{
+  "project": "PUBLIC_WING_LAYOUT",
+  "dryRun": true,
+  "steps": [
+    {
+      "id": "MAIN",
+      "kind": "wing",
+      "params": {
+        "naca": "2412",
+        "invertProfile": true,
+        "span": 900,
+        "chordRoot": 220,
+        "chordTip": 200,
+        "stations": 3,
+        "aoaRoot": -4
+      }
+    },
+    {
+      "id": "FLAP",
+      "kind": "flap",
+      "params": {
+        "parentId": "MAIN",
+        "naca": "2412",
+        "invertProfile": true,
+        "chordRatio": 0.3,
+        "deflectionDeg": -15,
+        "gap": 10,
+        "overlap": 2
+      }
+    }
+  ],
+  "note": "PUBLIC SYNTHETIC FIXTURE. Independent arbitrary layout, no flow or downforce verification. Offline contract only; native CATIA geometry and rules are unverified."
+}

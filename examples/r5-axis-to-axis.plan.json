@@ -1,0 +1,65 @@
+{
+  "project": "R5_AXIS_TO_AXIS_REGRESSION",
+  "dryRun": true,
+  "steps": [
+    {
+      "id": "SourceAxis",
+      "kind": "axis_system",
+      "params": {
+        "origin": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "TargetAxis",
+      "kind": "axis_system",
+      "params": {
+        "origin": [
+          -950,
+          70,
+          580
+        ],
+        "xDirection": [
+          0,
+          1,
+          0
+        ],
+        "yDirection": [
+          -1,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "LocalPoint",
+      "kind": "point",
+      "params": {
+        "x": 100,
+        "y": 0,
+        "z": 0
+      }
+    },
+    {
+      "id": "PlacedPoint",
+      "kind": "gsd_api",
+      "params": {
+        "factory": "AddNewAxisToAxis",
+        "arguments": [
+          {
+            "ref": "LocalPoint"
+          },
+          {
+            "ref": "SourceAxis"
+          },
+          {
+            "ref": "TargetAxis"
+          }
+        ]
+      }
+    }
+  ]
+}

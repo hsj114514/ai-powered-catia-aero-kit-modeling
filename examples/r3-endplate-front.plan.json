@@ -1,0 +1,111 @@
+{
+  "project": "PUBLIC_FRONT_PRIMITIVES",
+  "dryRun": true,
+  "steps": [
+    {
+      "id": "LOW_WALL",
+      "kind": "closed_loft",
+      "params": {
+        "sections": [
+          [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              100,
+              0,
+              0
+            ],
+            [
+              100,
+              60,
+              0
+            ],
+            [
+              0,
+              60,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              0,
+              3
+            ],
+            [
+              100,
+              0,
+              3
+            ],
+            [
+              100,
+              60,
+              3
+            ],
+            [
+              0,
+              60,
+              3
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "HIGH_WALL",
+      "kind": "closed_loft",
+      "params": {
+        "sections": [
+          [
+            [
+              100,
+              0,
+              0
+            ],
+            [
+              160,
+              0,
+              0
+            ],
+            [
+              160,
+              100,
+              0
+            ],
+            [
+              100,
+              100,
+              0
+            ]
+          ],
+          [
+            [
+              100,
+              0,
+              3
+            ],
+            [
+              160,
+              0,
+              3
+            ],
+            [
+              160,
+              100,
+              3
+            ],
+            [
+              100,
+              100,
+              3
+            ]
+          ]
+        ]
+      }
+    }
+  ],
+  "note": "PUBLIC SYNTHETIC FIXTURE. Two adjacent rectangular solids demonstrate independent closed-loft calls; not a reconstructed front contour. Offline contract only; native CATIA geometry and rules are unverified."
+}

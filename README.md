@@ -1,181 +1,83 @@
 # AI-Powered CATIA Aero Kit Modeling
 
-[English](README.en.md) · **v1.1 / 1.1.0 · r6** · GPL-3.0-only
+**v1.2.0 / r11 · GPL-3.0-only · GitHub 版本更新**
 
-用于赛车空气动力学套件的 CATIA V5 参数化建模工具。v1.1 增加了**读取部件位置**和**装配操作**，帮助把翼面设计放入整车布局中。本包是 GitHub 源码交付版，保留 patched 包的修复。仓库：[hsj114514/ai-powered-catia-aero-kit-modeling](https://github.com/hsj114514/ai-powered-catia-aero-kit-modeling)。
+[English](README.en.md) · [v1.1 → v1.2 更新说明](RELEASE_NOTES.md) · [已知问题与后续目标](ROADMAP.md)
 
-## v1.1 能做什么
+面向 FSEC/FSAE 赛车空套的 CATIA V5 参数化建模工具，提供翼面、襟翼、端板、扩散器、部件位置读取与装配，以及 GSD、草图、建模计划和几何规则初筛。当前主要用于几何设计；没有实现自动 CFD 求解，也不评估安装刚度或约 200 N 载荷变形。
 
-- 根据 NACA 四位翼型或坐标构建翼型、翼面、多级襟翼、端板、扩散器，以及点、线、平面和导引曲线。
-- 以项目账本管理参数，重建编号版本，查看历史、回滚参数并导出几何。
-- 离线读取 STEP 装配层级、实例和位置，导出 CSV；按需计算带质量标记的近似包络。
-- 从 CATIA 当前产品树读取部件在装配坐标系中的绝对位置，组合嵌套装配的局部变换。
-- 在 CATProduct 中插入、移除或替换实例；检查刚体放置矩阵，支持保存为新的总装文件。
-- 根据用户提供的车轴、轮胎、地面及区域基准，初筛部分几何规则。
+## 作者的话
 
-**几何范围：**不评价安装刚度、约 200 N 加载变形、结构强度或气动性能。端板和扩散器生成曲面，不自动保证封闭实体。规则初筛不能代替最终模型测量、官方规则与车检。
+> 全题目光向我看齐，看我看我，我宣布个事，我是个sb，gsd的功能v1.2才想起来加
 
-## 运行要求与兼容性
+模型建模能力还有巨大优化空间：Agent 仍然喜欢使用样条线，主动建立有效约束的能力不足，复杂端板还可能出现该闭合的面不闭合。好歹已经能用，但“工具已接入”不等于“Agent 会正确使用”，更不等于“所有复杂模型都能生成”。
 
-| 使用方式 | 需要 | 说明 |
-|---|---|---|
-| 离线几何/STEP 模块与规则筛查 | Node.js 18+ | 仅使用 Node 内置模块，无需 npm 安装或构建 |
-| CATIA 实时建模、位置读取及装配 | Windows、CATIA V5、可用 COM 自动化与相应许可 | 需要目标机器验证接口和许可；包内不包含 CATIA |
-| 作为 Agent 插件 | 提供 tools 服务的 DSH/Cordis 宿主 | 内部包名保留 `@local/catia-aero-kit`，避免破坏加载配置 |
-| 其他 Agent | 自行接入模块或适配工具定义 | 本包没有通用 MCP 服务入口，不能直接当成任意 Agent 的即装即用插件 |
+这段是作者的自嘲。准确的版本历史是：v1.1 已有基础翼面放样和样条路径，v1.1.1 至 v1.2 逐步扩展 GSD；v1.2 整合了更系统的目录、适配器和建模策略。v1.3 前争取改善工具选择、主动约束与闭合检查，属于待实现、待验证的目标，不能保证届时全部修好。
 
-`package.json` 的 `private: true` 防止误发 npm，不影响 GitHub 下载或 DSH 本地包加载。
+## 对比 v1.1 有什么变化
 
-## 新机器快速开始
+对照本地保留的 v1.1.0/r6 GitHub 候选源码：注册工具 **27 → 44**，17 个新增，原 27 个入口保留。部件位置读取、STEP 装配读取与插入/移除/替换在 v1.1 已有。
 
-1. 下载并完整解压，找到同时包含 `index.js`、`package.json` 和 `cordis.patch.yml` 的目录。
-2. 在该目录运行只读环境诊断和文件完整性检查：
+| 方向 | v1.2.0 / r11 的变化 |
+| --- | --- |
+| GSD 与实体 | 扩展曲面、线框、分割、修剪、接合、修复、变换、圆角和封盖路径；145 个工厂白名单入口。29 个中英文命令中 24 个有适配，5 个明确未实现。 |
+| 草图与约束 | 新增闭合直线多边形/开放折线草图，长度、水平、垂直、平行、垂直关系与端点重合；参数编辑/重建路径。 |
+| 建模计划 | 批量依赖排序、离线准备和审查；r11 默认将能精确表示的共面两点直线截面转为约束草图，再由 Loft 消费。 |
+| 奖惩与 Skill | 独立全局/前翼 Skill、评分配置、闭合惩罚和条件性小奖励；相关实际修复尝试可有限减罚，不能替代闭合成功。 |
+| 规则与诊断 | 规则来源、缺失证据与未核验条款分开记录；部署指纹、失败阶段、重建与历史指标便于定位问题。 |
+| 公开交付 | 清理私有 CAD 派生轮廓与实测数据，重新生成合成示例，补充中英文文档、路线图、贡献说明和离线 CI。 |
 
-```powershell
+详细入口、范围和没有实现的部分见 [更新说明](RELEASE_NOTES.md) 与 [GSD 命令表](GSD_COMMANDS_v1.2.0-r5.md)。工厂目录数量不是实机验证数量。
+
+## 下载后如何使用
+
+### 1. 离线使用
+
+需要 **Node.js 18+**。包没有 npm 运行时依赖，无需 npm install 或构建。在解压后的 `catia-aero-kit` 目录运行：
+
+```sh
 node scripts/doctor.mjs
 node scripts/checksums.mjs
-# Windows 可额外检查脚本宿主与 CATIA COM 注册：
-powershell -NoProfile -File scripts/doctor.ps1
-```
-
-诊断不会安装软件、注册 COM 或启动 CATIA。COM 注册存在不代表实际建模可用。SHA256 清单用于检查交付文件是否改变，不提供发布者身份验证。
-
-若 Windows 提示禁止运行脚本，可在检查源码后为上述命令加入 `-ExecutionPolicy Bypass`。该参数仅作用于本次 PowerShell 进程，不修改系统执行策略。Node 诊断与完整性检查无需此参数。
-
-3. 在目标 DSH 会话中，通过宿主的包管理工具导入目录：
-
-```text
-plugin_manager action: install_bundle, target: <解压后的包目录绝对路径>
-```
-
-安装命令由宿主提供；不同宿主版本应以其帮助为准。导入后确认 `catia_*` 和 `step_assembly_components` 已注册。纯离线模块无需安装插件。
-
-4. 在 Windows 启动 CATIA，在独立项目与工作副本上开始设计。先运行 `catia_env project: "AERO_DEMO"`；只有准备执行写盘探测时才加 `checkWrite: true`，该选项会创建并删除探测文件。
-
-### 自动发现路径
-
-随包 `projectRoot: ''`，运行时按顺序选择当前主机中非空、绝对的目录：
-
-`LOCALAPPDATA → XDG_DATA_HOME → HOME/.local/share → TEMP → 系统临时目录`
-
-随后追加 `catia-aero-kit/projects`。不使用开发机路径或宿主工作目录。数据目录不能写入时，可在 `cordis.patch.yml` 显式指定本机可写的绝对路径。回退到临时目录时应定期备份账本和几何文件。
-
-Node 根据 PATH 发现，Windows 诊断还探测当前机器常见的用户/系统安装位置；脚本宿主根据 SystemRoot 定位。软件缺失时给出诊断，不会自动下载安装。
-
-### 配置
-
-| 配置 | 运行时默认值 | 随包值/用途 |
-|---|---|---|
-| enabled | true | 注册工具 |
-| projectRoot | 自动发现 | 空字符串，自动定位当前用户目录 |
-| maxLevel | 2 | 随包为 3，保留装配移除/替换；只用建模和插入可改为 2 |
-| allowOverwrite | false | 保留 false，避免覆盖已有输出 |
-| allowDeleteOwnFeature | true | 失败时清理本次创建的特征 |
-| scriptTimeoutMs | 900000 | 单次自动化超时，毫秒 |
-| persona | true | 宿主支持时注册操作规范 |
-
-装配移除/替换为 Level 3：除配置上限外，还要求 `confirm` 精确重复实例名并填写 `reason`。这些字段用于防误操作，不能代替操作人的授权。
-
-## 建模示例
-
-以下是 Agent 工具参数示例，不是终端命令：
-
-```text
-catia_multi_element_wing project: "AERO_DEMO", id: "rear_wing",
-    naca: "2412", span: 1200, zStart: -600,
-    chordRoot: 300, chordTip: 220, aoaRoot: 8, twist: -2,
-    sweepDeg: 5, dihedralDeg: 2, stations: 5,
-    flaps: [{ chordRatio: 0.3, deflectionDeg: 25, gap: 5, overlap: 3 }]
-
-catia_check_rules project: "AERO_DEMO",
-    rules: { groundY: 0, maxSpan: 1600, maxHeight: 900, minGroundClearance: 50 }
-
-catia_export project: "AERO_DEMO", format: "step"
-```
-
-示例尺寸是演示参数，不代表赛事规定。建模单位为毫米，+X 向后、+Y 向上、+Z 向外；正攻角抬高前缘。多级襟翼逐级串联：后一级的弦长比、偏转、gap 和 overlap 相对其父级。旧账本保留原 parentId。
-
-## 读取部件位置
-
-```text
-step_assembly_components project: "AERO_DEMO",
-    file: <整车.step绝对路径>, includeBounds: false, exportCsv: true
-
-catia_open_document project: "AERO_DEMO", path: <总装.CATProduct绝对路径>
-catia_assembly_positions project: "AERO_DEMO", maxDepth: 12, maxComponents: 500
-```
-
-STEP 不需要启动 CATIA；CATIA 位置读取使用当前活动产品文档。查看位置状态、未解析实例和截断标记；工具最多显示 80 个结构化预览，STEP 可用 CSV 查看保留的完整表。
-
-读取输出统一为**行主序 3×4**：
-
-```text
-[r00,r01,r02,tx, r10,r11,r12,ty, r20,r21,r22,tz]
-```
-
-平移位于索引 3、7、11。STEP 数值使用源文件单位，尚未自动换算；建模、CATIA placement 和以 mm 命名的包络阈值按毫米使用。必须先核对导出单位，并把整车坐标、地面和车轴基准变换到同一坐标系。
-
-`includeBounds: true` 返回近似包络；其 `boundsStatus`、`boundsWarnings` 和 `boundsUsableForCompliance: false` 必须保留。不完整、有理或不支持几何、过滤及资源上限均可能降低可信度。分配预算限制部分内部数组，不等于进程总内存限制。位置只是部件原点与方向，不能证明完整外形无干涉。
-
-## 装配操作
-
-```text
-catia_assembly_insert project: "AERO_DEMO",
-    product: <总装.CATProduct绝对路径>, component: <翼面.CATPart绝对路径>,
-    instanceName: "Wing.1",
-    placement: [1,0,0, 0,1,0, 0,0,1, 100,200,300],
-    saveAs: <新的总装.CATProduct绝对路径>
-
-catia_assembly_replace project: "AERO_DEMO",
-    product: <总装.CATProduct绝对路径>,
-    componentPath: ["RearAssembly.1","Wing.1"], component: "Wing.1",
-    withFile: <新版翼面.CATPart绝对路径>, confirm: "Wing.1",
-    reason: "替换已经人工确认的新版翼面",
-    saveAs: <另一个新的总装.CATProduct绝对路径>
-```
-
-插入的 `placement` 使用 CATIA 原始轴格式：
-
-```text
-[X轴x,X轴y,X轴z, Y轴x,Y轴y,Y轴z, Z轴x,Z轴y,Z轴z, 原点x,原点y,原点z]
-```
-
-它与读取输出的行主序矩阵不同，不能直接混用。示例为无旋转、平移 [100,200,300] mm。矩阵必须是正交、右手刚体变换。嵌套 componentPath 逐级精确匹配唯一实例。替换保留旧件局部放置，但新旧部件的局部原点、约束和发布引用仍需检查。
-
-- 不传 saveAs 时只修改 CATIA 会话；保存失败时会话也可能已经改变，应检查后再重试。
-- saveAs 必须指向不存在的新文件。装配输入和输出可在项目目录之外，应仅操作已授权的工作文件。
-- CATProduct 仍引用原部件文件。本工具不自动收集引用；跨机器交付装配须在 CATIA Save Management 中收集外部引用。
-
-## 几何与规则筛查
-
-```powershell
-node scripts/geometry-check.mjs <ledger.json路径> <rules.json路径>
-```
-
-退出码：0 表示所选精确几何通过给定检查；2 表示冲突、采样不确定或缺失数据；1 表示输入错误。只适用于工具实现的几何范围。
-
-点/直线可按实际区域裁切；样条和放样筛查输入点，不能保证最终曲面完全在区域内，此时返回 PARTIAL_SUCCESS、screeningOnly 和 uncertainElements。T9.4/T9.5/T9.6 的部分检查依赖调用者提供正确基准；本包没有完整赛事规则数据库。最终曲面、间隙和区域边界必须在 CATIA 中测量确认。
-
-## 开发、交付与文档
-
-```powershell
+node scripts/prepare-plan.mjs examples/r11-sketch-foot-input.plan.json prepared.plan.json
+node scripts/evaluate-plan.mjs prepared.plan.json
 node scripts/verify.mjs
-powershell -NoProfile -File scripts/package.ps1 -OutputFile <新的zip绝对路径>
 ```
 
-离线检查不会启动 CATIA。打包脚本只收集源码、文档、许可证、检查脚本和 GitHub 工作流，生成 SHA256 清单；不携带本机项目、CAD 文件或生成报告。Windows/Linux 的 GitHub 离线检查已配置，实际执行结果需发布后查看 Actions。
+`prepared.plan.json` 必须不存在；脚本拒绝覆盖。上述流程不启动 CATIA、不安装插件。doctor 会显示本机环境路径，其输出不要随源码公开。SHA256 检查针对交付文件；改源码后应重新打包。公开例子的任意尺寸与限制见 [examples/README.md](examples/README.md)。
 
-本次本地准备检查了源码语法与交付完整性，未运行回归测试或实时 CATIA 验证；不能据此确认全部功能已通过。
+### 2. 在 CATIA 中建模
 
-- [v1.1 更新记录](CHANGELOG.md)
-- [v1.1 更新说明](RELEASE_NOTES.md)
-- [本次移植交付说明](PORTABILITY.md)
-- [贡献指南](CONTRIBUTING.md)、[安全问题](SECURITY.md)
-- [工具与操作规范](CHARTER.md)
-- 历史审查：[REVIEW_r6.md](REVIEW_r6.md)、[REVIEW_v1.1.0.md](REVIEW_v1.1.0.md)、[CODE_REVIEW.md](CODE_REVIEW.md)、[实车记录](VERIFICATION-real-vehicle.md)
+需要 Windows、CATIA V5、已注册的 `CATIA.Application` COM 和对应的建模许可。宿主需要提供 DSH/Cordis 的 `tools` 服务；内嵌 Skill 注入还需要宿主的 `systemPrompt` 支持。
 
-历史记录描述原开发时的环境和数据，不是本候选版的实时 CATIA 或实车验证结果。
+有兼容 DSH 宿主时，按 [整包重装说明](REINSTALL_r11.md) 手动加载 `cordis.patch.yml`。代码、Skill、rules 和 scoring 应一起更新；加载后通过 `catia_policy_status` 核对 **1.2.0 / r11、44 个工具、26 项资源指纹**。只替换 Skill Markdown 不会更新工具代码。
 
-## 许可证
+当前不是独立 MCP 服务，也不是适用于所有 Agent 的通用安装包。其他 Agent 需要适配工具注册、Schema、结果渲染、提示注入与用户授权流程，详见 [移植说明](PORTABILITY.md)。本候选版尚未在新主机验证实时 CATIA。
 
-源码按 **GNU GPL v3 only（GPL-3.0-only）** 发布，全文见 [LICENSE](LICENSE)。CATIA、DSH/Cordis、Node.js 不包含在包内，分别遵循各自的许可。公开源码不会提供 CATIA 软件或许可。
+### 3. 路径与操作范围
+
+`projectRoot` 留空时，插件自动从用户目录环境变量选择工程输出目录；`cscript.exe` 由系统目录定位。不存在开发机硬编码路径。doctor 能检查 Node、脚本宿主与 COM 注册，但不会安装 CATIA、修复许可或代替实时验证。
+
+发布包保留 r11 原配置 `maxLevel: 3`，移除/替换装配仍需 confirm 和 reason；若希望禁用这两项，手动改为 2。只在授权工程副本中进行真实操作。输出文件、账本、审计、工程和 CSV 不应提交 GitHub。
+
+## 几何与规则边界
+
+默认 **毫米，+X 向后、+Y 向上、+Z 右侧外向**。STEP 按源文件单位读取，不自动换算。其他来源坐标必须显式转换。
+
+开放放样截面与设计的足板开口可以是合理几何；应闭合的材料轮廓/壳体必须单独声明和检查。评分是计划启发式评估，不会训练 Agent，也不会自动证明曲面闭合、G2、下压力或赛事合规。规则库属于几何初筛，缺项和未核验条款不能当作通过。
+
+草图当前不支持圆弧/翼型草图、相切/半径约束、Pad/Pocket 或完整自由度认证；r11 的自动转换只覆盖严格的直线截面，不自动修复自由曲线端板前缘。D3 距离类型不匹配、D4 截面 Update 失败根因仍未确认。完整限制见 [ROADMAP.md](ROADMAP.md)。
+
+## 文档导航
+
+- [草图进入放样的 r11 路径](R11_SKETCH_ROUTING.md)
+- [GSD 参考与命令状态](GSD_REFERENCE.md)
+- [闭合实体路径](R7_CLOSED_ENDPLATE_GUIDE.md) / [前缘合并](R5_FRONT_CLOSURE_GUIDE.md)
+- [奖惩公式](EVALUATOR_REFERENCE.md) / [规划策略](R10_PLANNING_POLICY.md)
+- [本次公开交付审查](GITHUB_RELEASE_REVIEW.md) / [历史记录范围](HISTORY.md)
+- [贡献](CONTRIBUTING.md) / [安全问题](SECURITY.md) / [许可证](LICENSE)
+
+## 验证与发布状态
+
+本轮仅做离线代码、Schema、引用链、合成几何合同和交付文件检查。打包检查阶段没有安装、启动 CATIA、复测真实模型；源码现用于 GitHub 版本更新。离线通过、原生 Update、几何实测与完整赛事合规是不同结论。
+
+源码已按仓库根目录组织；准备阶段 ZIP 保留为独立交付记录。发布说明可直接使用 RELEASE_NOTES.md；工作流尚未在 GitHub 执行。

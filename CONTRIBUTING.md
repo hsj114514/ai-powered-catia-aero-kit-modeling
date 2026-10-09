@@ -1,26 +1,21 @@
 # 贡献指南
 
-本项目采用 GPL-3.0-only；贡献前阅读 LICENSE。保留包版本 1.1.0 和 revision r6，版本调整由维护者决定。
+GPL-3.0-only，见 LICENSE。当前包为 1.2.0/r11；版本变更由维护者决定。
 
-## 开发
+Node.js 18+，无需 npm 安装。lib/ 下分离桥接、几何、草图、GSD、规则、评分和计划；skills、rules、scoring 应同步维护。先运行 node scripts/verify.mjs，只进行离线检查。真实 CATIA 验证需说明版本、许可、输入和授权副本，不能把模拟回复或旧报告称为新版本实测。
 
-使用 Node.js 18+，无需安装 npm 依赖。入口 index.js 注册宿主工具；lib/ 分离几何、规则、STEP、变换、装配操作及 CATIA 桥接。
-
-在独立工作目录运行 node scripts/verify.mjs；此脚本只执行离线检查。实时 CATIA 验证必须单独说明宿主版本、接口、工作副本及验证范围，不把模拟测试描述为真实建模验证。
-
-GitHub 工作流使用官方 [actions/checkout](https://github.com/actions/checkout) 和 [actions/setup-node](https://github.com/actions/setup-node)，仅请求 contents: read。无发布任务、密钥配置或自动推送。
-
-## 修改要求
-
-- 保留有限数值、路径、输入预算、矩阵与实例唯一性校验。
-- 同步更新中英文说明、CHANGELOG 和相应检查。
-- 不提交用户工程、审计流水、真实部件、报告中的个人路径或凭据。
-- 装配会改变 CATIA 会话，失败和保存结果必须明确。
-- 不把采样包围盒或近似包络描述为完整合规证明。
-- 若变更工具 Schema，核对目标宿主支持的关键字；运行时仍需验证数组长度等条件。
+- 保留有限数值、ID/路径、预算、引用类型、结果门槛和授权边界。
+- 奖励需与几何任务和实际消费关联；不能按工具数量加分、篡改硬规则或用尝试次数证明闭合。
+- 不提交真实 CAD、轮廓派生数据、审计账本、私人路径、凭据或未经授权的规则原文文档。
+- 同步更新中文/英文说明和 CHANGELOG，记录尚未验证的部分。
+- Schema 变更需兼容宿主；外部编译器缺失须记录跳过，运行时校验仍需保留。
 
 ## 打包
 
+```powershell
 powershell -NoProfile -File scripts/package.ps1 -OutputFile <新zip绝对路径>
+```
 
-脚本拒绝覆盖输出并只收集白名单文件。解压后运行 node scripts/checksums.mjs 验证交付清单。修改后旧清单失效，应重新打包；不要手工保留旧哈希。
+脚本按 package.json 的逐文件白名单收集，拒绝已有输出、路径逃逸与链接文件，保留隐藏的 GitHub 元数据，并重新生成 checksums.sha256。解压后检查完整性。修改源码后旧清单失效。
+
+GitHub CI 只请求 contents:read，执行离线 Node 检查，不安装/启动 CATIA、不自动发布。使用官方 [actions/checkout](https://github.com/actions/checkout) 与 [actions/setup-node](https://github.com/actions/setup-node)。CI 各平台结果以实际运行记录为准。

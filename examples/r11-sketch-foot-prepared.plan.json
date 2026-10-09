@@ -1,0 +1,94 @@
+{
+  "project": "R11_SKETCH_FOOT_DEMO",
+  "dryRun": true,
+  "steps": [
+    {
+      "id": "FootSheet__sketch_1",
+      "kind": "sketch",
+      "task": "planar_profile",
+      "part": "Endplate",
+      "purpose": "Exact line section consumed by FootSheet",
+      "params": {
+        "plane": "ZX",
+        "origin": [
+          0,
+          50,
+          500
+        ],
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            200
+          ]
+        ],
+        "closed": false,
+        "constraints": [
+          {
+            "type": "length",
+            "edge": 0,
+            "value": 200
+          },
+          {
+            "type": "vertical",
+            "edge": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "FootSheet__sketch_2",
+      "kind": "sketch",
+      "task": "planar_profile",
+      "part": "Endplate",
+      "purpose": "Exact line section consumed by FootSheet",
+      "params": {
+        "plane": "ZX",
+        "origin": [
+          0,
+          50,
+          520
+        ],
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            200
+          ]
+        ],
+        "closed": false,
+        "constraints": [
+          {
+            "type": "length",
+            "edge": 0,
+            "value": 200
+          },
+          {
+            "type": "vertical",
+            "edge": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "FootSheet",
+      "kind": "gsd",
+      "part": "Endplate",
+      "params": {
+        "op": "loft",
+        "from": [
+          "FootSheet__sketch_1",
+          "FootSheet__sketch_2"
+        ]
+      },
+      "task": "multi_section_surface"
+    }
+  ],
+  "routeMode": "sketch_first"
+}

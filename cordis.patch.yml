@@ -3,7 +3,6 @@
       name: '@local/catia-aero-kit'
       config:
         enabled: true
-        # Leave empty to discover the current user's data directory on this host.
         projectRoot: ''
         maxLevel: 3
         # maxLevel is the global ceiling. Assembly remove/replace additionally require confirm and reason. Set 2 to disable them.

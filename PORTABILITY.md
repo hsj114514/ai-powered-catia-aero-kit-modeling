@@ -1,35 +1,33 @@
-# 移植与交付说明
+# 可移植性、宿主兼容与路径
 
-## 来源与版本
+## 前提
 
-基于用户提供的 catia-aero-kit-v1.1-r6-patched.zip，2026-10-06 完成移植整理。包版本 1.1.0 / 显示版本 v1.1 / revision r6 均保留。
+| 能力 | 条件 |
+| --- | --- |
+| 准备/评分/回归/STEP 离线读取 | Node.js 18+；仅标准库，无 npm 安装步骤 |
+| Windows 环境检查 | PowerShell 与 scripts/doctor.ps1；仅读取，不安装、不启动 CATIA |
+| CATIA 实时建模、测量、装配 | Windows、CATIA V5、注册的 COM 与对应许可；目标版本需另行验证 |
+| 注册全部 Agent 工具 | DSH/Cordis 的 tools 服务；Skill 注入还需要 systemPrompt 支持 |
+| 其他 Agent | 需要适配注册、Schema、结果与提示接口；不是通用 MCP 安装包 |
 
-## 目录与依赖
+嵌入的 `skills/*.md` 是本插件的设计知识资源，不是可直接装入所有 Agent 的独立 Skill。必须连同 lib、rules、scoring 和宿主配置更新；之后用 catia_policy_status 确认资源指纹。它无法证明宿主确实在当前会话注入了提示。
 
-- projectRoot 留空，使用 index.js 的目标用户目录选择逻辑；不嵌入开发机用户、盘符或工程路径。
-- doctor.mjs 与运行时共用目录解析，不会创建项目目录；doctor.ps1 探测 Windows 工具与 COM 注册。
-- Node 标准库自包含；不下载、安装或复制任何依赖。
-- CATIA/Node/DSH 的安装、许可和宿主兼容由目标机器满足，诊断无法代替实时验证。
-- 示例中的绝对路径均为需要用户在目标主机提供的输入，不是固定默认路径。
-- STEP 保留源单位，CATIA 与建模参数按毫米使用，坐标系需显式对齐。
-- 其他 Agent 可适配工具定义或模块；本包没有通用 MCP 入口。
+## 自动发现
 
-## 交付内容
+projectRoot 留空时依次考虑 LOCALAPPDATA、XDG_DATA_HOME、HOME 下的 .local/share、TEMP 和系统临时目录，选择有效绝对路径，并追加 catia-aero-kit/projects。实际写入时仍可能受权限或磁盘限制；可以显式配置自己的 projectRoot。
 
-源码、原有离线检查、中英文 README、更新记录、发布说明、操作规范、历史审查、GPL-3.0-only 许可证、GitHub 工作流和打包/校验脚本。压缩包采用统一 catia-aero-kit/ 顶层目录与斜杠路径。
+Node 脚本使用当前运行时；doctor.ps1 从 PATH 与新主机常见的 Node 安装目录查找 Node。cscript.exe 从 SystemRoot 下的 System32 定位。COM 注册检查不证明 CATIA 可启动，也不安装、注册或激活软件/许可。临时目录作为最后回退时，工程可能随系统清理，建议配置持久目录。
 
-GitHub 仓库根目录应放置此顶层目录内的文件，使 README、package.json 和 .github 位于仓库根目录。无需把 ZIP 作为唯一仓库内容；ZIP 可在确认发布后作为 Release 附件。
+运行 doctor 会输出当前电脑路径；这些输出不随发布包提供，不要公开。输入文件和装配部件路径由使用者提供；没有开发机用户名、私人绝对路径或源 CAD 文件。
 
-checksums.sha256 记录交付文件哈希；外部 ZIP.sha256 校验整个压缩包。任何源码或说明变更后都应重新打包生成清单。
+## 坐标、装配与工程交付
 
-## 验证记录
+默认毫米、+X 向后、+Y 向上、+Z 右侧外向。STEP 保留源文件单位，不自动换算；其他来源坐标须明确转换。嵌套装配组合刚体变换，位置/近似包络不能独立证明无干涉或合规。
 
-推送前的本地整理未安装插件、未启动 CATIA、未操作现有装配，也未运行回归测试。检查了 28 个 JavaScript 文件和 2 个 PowerShell 文件的语法；交付清单与压缩包完整性在打包时核对。
+保存 CATProduct 不会自动收集全部外部零件引用。交付真实工程时应另行收集外部引用并检查新主机解析结果。插件发布 ZIP 只包含源码、知识资源和合成例子。
 
-Windows 默认执行策略在此环境阻止直接运行 PowerShell 文件，因此使用单次进程的 -ExecutionPolicy Bypass 运行诊断和打包；没有修改系统策略或安装软件。Node 诊断与插件使用同一目录解析逻辑。
+## 配置与迁移
 
-配置的 GitHub Actions 在 Windows/Linux 运行离线检查，尚未执行；本机结果不能证明 Linux 或目标 CATIA 上通过。
+本次保留 r11 配置 maxLevel:3；移除/替换还需 confirm/reason。需要禁用这类操作可改为2。这些字段不能代替人授权。allowOverwrite:false 保留。
 
-## 历史报告
-
-REVIEW_r6.md、REVIEW_v1.1.0.md、CODE_REVIEW.md、VERIFICATION-real-vehicle.md 保留作来源历史。报告中的实车数字、接口版本和原会话检查结果不属于本次候选版验证。README 和本说明描述当前交付范围；历史报告不能扩大它。
+卸载/重装方式由具体宿主决定，见 REINSTALL_r11.md。本轮没有执行安装或迁移，也没有在新主机验证 CATIA。GitHub CI 只检查离线合同，不能替代本表中的运行前提。

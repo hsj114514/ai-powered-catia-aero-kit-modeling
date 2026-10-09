@@ -1,0 +1,88 @@
+{
+  "project": "R10_SKETCH_WALL",
+  "dryRun": true,
+  "description": "Offline tool-routing specimen; not a measured endplate or competition-compliance design.",
+  "steps": [
+    {
+      "id": "EndplateProfile",
+      "kind": "sketch",
+      "task": "planar_closed_profile",
+      "part": "Endplate",
+      "purpose": "Constrained material outline",
+      "params": {
+        "plane": "XY",
+        "origin": [
+          -950,
+          70,
+          580
+        ],
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            240,
+            0
+          ],
+          [
+            240,
+            150
+          ],
+          [
+            160,
+            150
+          ],
+          [
+            160,
+            90
+          ],
+          [
+            0,
+            90
+          ]
+        ],
+        "constraints": [
+          {
+            "type": "length",
+            "edge": 0,
+            "value": 240
+          },
+          {
+            "type": "length",
+            "edge": 1,
+            "value": 150
+          }
+        ]
+      }
+    },
+    {
+      "id": "EndplateSolid",
+      "kind": "capped_extrude",
+      "task": "solid",
+      "part": "Endplate",
+      "purpose": "Material solid candidate",
+      "params": {
+        "from": "EndplateProfile",
+        "direction": [
+          0,
+          0,
+          1
+        ],
+        "length": 2
+      }
+    }
+  ],
+  "geometryRequirements": [
+    {
+      "target": "EndplateProfile",
+      "type": "closed_wire",
+      "reason": "Material perimeter must close"
+    },
+    {
+      "target": "EndplateSolid",
+      "type": "solid",
+      "reason": "Final wall solid requires native closure inspection"
+    }
+  ]
+}

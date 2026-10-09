@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /** r6 regressions use mathematical witnesses and a recording bridge; no CATIA is started. */
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import {readFileSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { naca4Loop, parseAirfoilText, resolveProfile, wingStations } from '../lib/airfoil.js';
@@ -107,7 +107,7 @@ try {
   const failedBuild = await modelTools.find((t) => t.name === 'catia_point').execute({ project: 'p', id: 'probe', x: 0, y: 0, z: 0 });
   assert.equal(failedBuild.status, 'FAILED');
   assert.equal(modelBridge.readLedger('p').elements.probe, undefined);
-  modelBridge.run = async () => ({ ok: false, values: { feature_probe: 'probe', geometryReady: 'true' }, lists: {}, errors: ['save failed'], durationMs: 1 });
+  modelBridge.run = async () => ({ ok: false, values: { feature_probe: 'probe', verified_probe: 'true', geometryReady: 'true' }, lists: {}, errors: ['save failed'], durationMs: 1 });
   const unsaved = await modelTools.find((t) => t.name === 'catia_point').execute({ project: 'p', id: 'probe', x: 0, y: 0, z: 0 });
   assert.equal(unsaved.status, 'PARTIAL_SUCCESS');
   assert.equal(modelBridge.readLedger('p').versions.at(-1).file, null);

@@ -1,0 +1,51 @@
+{
+  "project": "r3_downforce_layout",
+  "steps": [
+    {
+      "id": "MAIN",
+      "kind": "wing",
+      "params": {
+        "naca": "2412",
+        "invertProfile": true,
+        "chordRoot": 280,
+        "chordTip": 260,
+        "span": 1120,
+        "zStart": -560,
+        "stations": 3,
+        "aoaRoot": -3,
+        "twist": 0,
+        "xOffset": -930,
+        "yOffset": 145
+      }
+    },
+    {
+      "id": "FLAP1",
+      "kind": "flap",
+      "params": {
+        "parentId": "MAIN",
+        "naca": "2412",
+        "invertProfile": true,
+        "chordRatio": 0.32,
+        "deflectionDeg": -18,
+        "gap": 8,
+        "gapSide": "positive",
+        "overlap": 4
+      }
+    },
+    {
+      "id": "FLAP2",
+      "kind": "flap",
+      "params": {
+        "parentId": "FLAP1",
+        "naca": "2412",
+        "invertProfile": true,
+        "chordRatio": 0.72,
+        "deflectionDeg": -12,
+        "gap": 6,
+        "gapSide": "positive",
+        "overlap": 3
+      }
+    }
+  ],
+  "note": "Default kit axes, mm. Inverted camber and negative AoA are geometric downforce candidates. No CFD or actual force claim."
+}

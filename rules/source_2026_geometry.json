@@ -1,0 +1,92 @@
+{
+  "version": "1.2.0-r10",
+  "sourceTitle": "2026中国大学生方程式系列赛事规则（答题版）",
+  "sourceSha256": "82d043d0639965ecd16450ee80caa7bb4d8e65bd85cc2cfffc92d69615cac6a5",
+  "sourceStatus": "USER_SUPPLIED_TEXT_REVIEWED_NOT_AUTHENTICATED",
+  "units": "mm",
+  "coordinateFrame": {
+    "+X": "aft",
+    "+Y": "up",
+    "+Z": "right outboard"
+  },
+  "measurementSetup": "Wheels straight ahead; no driver. Source figure and vehicle datums require separate geometric review.",
+  "enforcement": "Advisory source mapping only; scalar evaluator cannot enforce spatial zones or full competition compliance. No supplied CAD or DOCX is redistributed.",
+  "clauses": [
+    {
+      "clause": "T 2.1.2",
+      "summary": "Wheel visibility and exclusion regions; longitudinal exclusion extends 75 mm before and behind each tire, between its inner and outer side planes.",
+      "limits": {
+        "tireExclusionExtensionMm": 75
+      },
+      "requires": [
+        "tire extents",
+        "visibility review"
+      ],
+      "engine": "exclusionZones (explicit boxes); visibility not implemented"
+    },
+    {
+      "clause": "T 2.2.3",
+      "summary": "Reachable bodywork edges need at least 1 mm radius. Aero-specific forward edges have stricter limits.",
+      "limits": {
+        "bodyworkEdgeRadiusMm": 1
+      },
+      "engine": "not measured by scalar/bounds engine"
+    },
+    {
+      "clause": "T 9.1.3",
+      "summary": "Forward facing reachable aero horizontal edges need radius at least 5 mm and vertical edges at least 3 mm.",
+      "limits": {
+        "horizontalRadiusMm": 5,
+        "verticalRadiusMm": 3
+      },
+      "engine": "requires edge classification and native curvature measurement; not implemented"
+    },
+    {
+      "clause": "T 9.3.1",
+      "summary": "Measure with wheels straight and without driver.",
+      "engine": "measurement setup, not automatic check"
+    },
+    {
+      "clause": "T 9.3.2",
+      "summary": "Headrest reference and floor exception require direct source/figure review; do not infer position from a feature name.",
+      "engine": "not enforced"
+    },
+    {
+      "clause": "T 9.4.1",
+      "summary": "Front extension at most 700 mm ahead of front tire; rear extension at most 250 mm behind rear tire.",
+      "limits": {
+        "frontExtensionMm": 700,
+        "rearExtensionMm": 250
+      },
+      "engine": "maxAheadOfFrontTire/frontTireFrontX; maxBehindRearTire/rearTireRearX"
+    },
+    {
+      "clause": "T 9.5.1",
+      "summary": "Ahead of front axle: front tire outer planes. Between axles: line between front/rear tire outer planes. Behind rear axle: rear tire inner planes.",
+      "engine": "lateralTireEnvelope; needs all axle/tire datums"
+    },
+    {
+      "clause": "T 9.6.1",
+      "summary": "Height caps 500 mm ahead of headrest plane, 1200 mm behind; ahead of front axle and outside front tire inner planes cap 250 mm.",
+      "limits": {
+        "aheadHeadrestMm": 500,
+        "behindHeadrestMm": 1200,
+        "frontOuterZoneMm": 250
+      },
+      "engine": "headrestHeightRegions/front250HeightZone; explicit ground datum"
+    },
+    {
+      "clause": "T 9.6.2",
+      "summary": "Specified fixed bodywork between axles and within 400 mm either side of centreline has a height exception; do not apply to all aero automatically.",
+      "limits": {
+        "halfWidthMm": 400
+      },
+      "engine": "semantic exception not automatically implemented"
+    },
+    {
+      "clause": "T 9.7",
+      "summary": "Mount stiffness and approximately 200 N deformation checks excluded from this task.",
+      "scope": "OUT_OF_SCOPE"
+    }
+  ]
+}

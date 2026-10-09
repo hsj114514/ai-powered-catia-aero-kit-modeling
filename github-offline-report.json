@@ -1,0 +1,44 @@
+{
+  "version": "1.2.0",
+  "revision": "r11",
+  "distribution": "GitHub release candidate",
+  "date": "2026-10-09",
+  "inputArchiveSha256": "6edd8f7dd1a201ef235858a49d85028d667b481b55b41008914f905f7cbb8e07",
+  "baseline": {
+    "version": "1.1.0",
+    "revision": "r6",
+    "source": "Saved local GitHub candidate; remote state not checked",
+    "tools": 27
+  },
+  "tools": 44,
+  "addedTools": 17,
+  "removedTools": 0,
+  "gsdFactories": 145,
+  "commands": {
+    "total": 29,
+    "adapted": 24,
+    "unimplemented": 5
+  },
+  "offlineSuites": {
+    "scheduled": 35,
+    "passed": 35,
+    "failed": 0,
+    "skipped": 0,
+    "externalDshCompiler": "Resolved locally; ALL SCHEMA CHECKS PASSED"
+  },
+  "r11RoutingAssertions": 77,
+  "publicR7Assertions": 195,
+  "syntaxFiles": 81,
+  "syntaxFailures": [],
+  "runtimeConfigurationFilesUnchangedAfterLineEndingNormalization": 43,
+  "runtimeConfigurationChanged": [],
+  "nativeCatiaCalls": 0,
+  "privatePathOrKnownPrivateCadDataHits": [],
+  "recognizableCredentialHits": [],
+  "missingMarkdownLinks": [],
+  "quoteIncludedVerbatim": true,
+  "publicPrivateCadDerivedFixturesReplaced": true,
+  "privateLiveMeasurementLedgerExcluded": true,
+  "deliveryFilesIncludingChecksum": 146,
+  "validationScope": "Offline contracts only; no CATIA installation, launch, native update, geometry measurement, competition certification or GitHub publication. The CI matrix has not run on GitHub."
+}

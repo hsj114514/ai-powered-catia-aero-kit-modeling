@@ -1,0 +1,78 @@
+{
+  "project": "R7_GSD_SPLIT",
+  "dryRun": true,
+  "steps": [
+    {
+      "id": "SUPPORT",
+      "kind": "surface",
+      "params": {
+        "sections": [
+          [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              100,
+              0,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              0,
+              80
+            ],
+            [
+              100,
+              0,
+              80
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "CUT_PLANE",
+      "kind": "plane",
+      "params": {
+        "base": "YZ",
+        "offset": 50
+      }
+    },
+    {
+      "id": "SPLIT_FIRST",
+      "kind": "gsd_api",
+      "params": {
+        "factory": "AddNewHybridSplit",
+        "arguments": [
+          {
+            "ref": "SUPPORT"
+          },
+          {
+            "ref": "CUT_PLANE"
+          },
+          1
+        ]
+      }
+    },
+    {
+      "id": "SPLIT_OTHER",
+      "kind": "gsd_api",
+      "params": {
+        "factory": "AddNewHybridSplit",
+        "arguments": [
+          {
+            "ref": "SUPPORT"
+          },
+          {
+            "ref": "CUT_PLANE"
+          },
+          -1
+        ]
+      }
+    }
+  ]
+}

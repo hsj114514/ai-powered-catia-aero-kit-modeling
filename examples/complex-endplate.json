@@ -1,0 +1,37 @@
+{
+  "project": "endplate_demo",
+  "steps": [
+    {
+      "id": "panel",
+      "kind": "surface",
+      "params": {
+        "sections": [[[0,0,0],[300,0,0]], [[0,45,0],[300,45,0]], [[0,90,0],[300,90,0]]]
+      }
+    },
+    {
+      "id": "flare",
+      "kind": "surface",
+      "params": {
+        "sections": [[[0,90,0],[300,90,0]], [[0,105,15],[300,105,15]], [[0,120,30],[300,120,30]]]
+      }
+    },
+    {
+      "id": "retention_strip",
+      "kind": "surface",
+      "params": {
+        "sections": [[[0,0,-20],[300,0,-20]], [[0,0,-10],[300,0,-10]], [[0,0,0],[300,0,0]]]
+      }
+    },
+    {
+      "id": "endplate_sheet",
+      "kind": "gsd",
+      "params": { "op": "join", "from": ["panel","flare","retention_strip"] }
+    },
+    {
+      "id": "endplate_solid",
+      "kind": "gsd",
+      "params": { "op": "solid_thick", "from": ["endplate_sheet"], "offset1": 2, "offset2": 0 }
+    }
+  ],
+  "note": "Generic geometry demonstration: main panel, outward flare, lower retention flange and 2 mm thickening. Not a vehicle-specific or rule-approved design."
+}

@@ -1,0 +1,40 @@
+{
+  "project": "R11_SKETCH_FOOT_DEMO",
+  "dryRun": true,
+  "steps": [
+    {
+      "id": "FootSheet",
+      "kind": "surface",
+      "part": "Endplate",
+      "params": {
+        "sections": [
+          [
+            [
+              0,
+              50,
+              500
+            ],
+            [
+              200,
+              50,
+              500
+            ]
+          ],
+          [
+            [
+              0,
+              50,
+              520
+            ],
+            [
+              200,
+              50,
+              520
+            ]
+          ]
+        ],
+        "closed": false
+      }
+    }
+  ]
+}

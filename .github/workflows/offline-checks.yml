@@ -27,5 +27,7 @@ jobs:
           package-manager-cache: false
       - name: Read-only environment discovery
         run: node scripts/doctor.mjs
+      - name: Delivery file integrity
+        run: node scripts/checksums.mjs
       - name: Offline regression suites
         run: node scripts/verify.mjs

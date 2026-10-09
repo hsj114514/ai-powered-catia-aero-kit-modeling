@@ -1,0 +1,55 @@
+{
+  "fixtureRevision": "public-synthetic-20261009",
+  "unit": "mm",
+  "axes": [
+    "+X rearward",
+    "+Y upward",
+    "+Z right/outboard"
+  ],
+  "source": "Independent mathematical primitives; no CAD source file",
+  "wall": {
+    "xRange": [
+      0,
+      160
+    ],
+    "yRange": [
+      0,
+      90
+    ],
+    "zRange": [
+      0,
+      3
+    ]
+  },
+  "foot": {
+    "extrusionX": [
+      0,
+      120
+    ],
+    "outerArcRadius": 12,
+    "innerArcRadius": 9,
+    "outerCentreYZ": [
+      3,
+      20
+    ],
+    "innerCentreYZ": [
+      0,
+      20
+    ],
+    "openingAtY0Z": [
+      11,
+      29
+    ]
+  },
+  "flare": {
+    "centreXZ": [
+      200,
+      60
+    ],
+    "outerRadius": 60,
+    "innerRadius": 57,
+    "angleDeg": 30,
+    "height": 80
+  },
+  "note": "Separate capability specimens, not one joined endplate. Native closure, intersections and rules are unverified."
+}

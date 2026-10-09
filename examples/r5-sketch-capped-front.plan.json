@@ -1,0 +1,64 @@
+{
+  "project": "R5_SKETCH_CAP_REGRESSION",
+  "dryRun": true,
+  "steps": [
+    {
+      "id": "FrontProfile",
+      "kind": "sketch",
+      "params": {
+        "plane": "XY",
+        "origin": [
+          -950,
+          70,
+          580
+        ],
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            100,
+            0
+          ],
+          [
+            100,
+            181
+          ],
+          [
+            70,
+            181
+          ],
+          [
+            40,
+            122
+          ],
+          [
+            0,
+            122
+          ]
+        ],
+        "constraints": [
+          {
+            "type": "length",
+            "edge": 0,
+            "value": 100
+          }
+        ]
+      }
+    },
+    {
+      "id": "FrontClosed",
+      "kind": "capped_extrude",
+      "params": {
+        "from": "FrontProfile",
+        "direction": [
+          0,
+          0,
+          1
+        ],
+        "length": 2
+      }
+    }
+  ]
+}

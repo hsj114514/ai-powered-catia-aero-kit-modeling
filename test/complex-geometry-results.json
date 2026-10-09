@@ -1,0 +1,63 @@
+{
+  "version": "1.2.0-r11-public-fixture",
+  "note": "Public case placeholders. Historical private CATIA measurements are excluded; no live results are asserted.",
+  "liveEvidence": [],
+  "cases": [
+    {
+      "case": "Case 1 single constant-chord wing",
+      "build": "not-run",
+      "update": "not-run",
+      "rebuild": "not-run",
+      "failureStage": null,
+      "executionTimeMs": null
+    },
+    {
+      "case": "Case 2 tapered wing",
+      "build": "not-run",
+      "update": "not-run",
+      "rebuild": "not-run",
+      "failureStage": null,
+      "executionTimeMs": null
+    },
+    {
+      "case": "Case 3 taper + twist",
+      "build": "not-run",
+      "update": "not-run",
+      "rebuild": "not-run",
+      "failureStage": null,
+      "executionTimeMs": null
+    },
+    {
+      "case": "Case 4 mainplane + single flap",
+      "build": "not-run",
+      "update": "not-run",
+      "rebuild": "not-run",
+      "failureStage": null,
+      "executionTimeMs": null
+    },
+    {
+      "case": "Case 5 mainplane + two flaps",
+      "build": "not-run",
+      "update": "not-run",
+      "rebuild": "not-run",
+      "failureStage": null,
+      "executionTimeMs": null
+    },
+    {
+      "case": "Case 6 inner/outer variation",
+      "build": "not-run",
+      "update": "not-run",
+      "rebuild": "not-run",
+      "failureStage": null,
+      "executionTimeMs": null
+    },
+    {
+      "case": "Case 7 wing + endplate",
+      "build": "not-run",
+      "update": "not-run",
+      "rebuild": "not-run",
+      "failureStage": null,
+      "executionTimeMs": null
+    }
+  ]
+}
